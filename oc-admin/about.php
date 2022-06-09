@@ -209,6 +209,10 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
                                                     href="<?php echo BASE_URL; ?>/actions/generalActions.php?newApiKey=1">Generate</a>
                                             </div>
                                         </div>
+                                        <div class="input-group">
+                                            Build Author:<input type="text" class="form-control" readonly="readonly"
+                                                placeholder="Kevingorman1000" />
+                                        </div>
                                     </div>
                                     <!-- ./ col-md-2 col-sm-4 col-xs-6 tile_stats_count -->
                                 </div>
