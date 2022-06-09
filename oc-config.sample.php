@@ -1,4 +1,14 @@
 <?php
+/**#@+
+  * Notice
+  *
+  * This is a clone of the offical OpenCAD Software developed by Stormlight Tech.
+  * This version has been heavily modified by Kevingorman1000
+  * Please contact me personally if you are using this version and are having issues with it. DO NOT CONTACT OPENCAD
+  * https://github.com/kevingorman1000/OpenCad
+  *
+  **/
+
 
 /**#@+
   * Application Settings

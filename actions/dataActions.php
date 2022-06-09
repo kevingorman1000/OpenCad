@@ -251,24 +251,10 @@ function deleteCitationType()
 {
     session_start();
     $id = htmlspecialchars($_POST['citationTypeID']);
-   
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "citation_types WHERE citation_id = ?");
-    if (!$stmt->execute(array($id))) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $citation_data = new Citations\CitationManager();
 
-    $pdo = null;
+    $citation_data->deleteCitationType($id);
 
     session_start();
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident type from database</span></div>';
@@ -290,26 +276,11 @@ function deleteCitationType()
  **/
 function getDepartments()
 {
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $department_data = new Departments\DepartmentManager();
 
-    $result = $pdo->query("SELECT * FROM " . DB_PREFIX . "departments");
+    $result = $department_data->getDepartments();
 
     if (!$result) {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $num_rows = $result->rowCount();
-    $pdo = null;
-
-    if ($num_rows == 0) {
         echo "<div class=\"alert alert-info\"><span>There are no Departments in the database.</span></div>";
     } else {
         echo '
@@ -382,25 +353,10 @@ function getDepartments()
 function getDepartmentDetails()
 {
     $departmentID = htmlspecialchars($_POST['departmentID']);
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("SELECT * FROM " . DB_PREFIX . "departments WHERE department_id = ?");
-    $resStatus = $stmt->execute(array($departmentID));
-    $result = $stmt;
+    $department_data = new Departments\DepartmentManager();
 
-    if (!$resStatus) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $department_data->getDepartmentDetails($departmentID);
 
     $encode = array();
     foreach ($result as $row) {
@@ -422,27 +378,20 @@ function editDepartment()
     $department_long_name            = !empty($_POST['department_long_name']) ? htmlspecialchars($_POST['department_long_name']) : '';
     $allow_department                = !empty($_POST['allow_department']) ? htmlspecialchars($_POST['allow_department']) : '';
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
+    $departmentID = htmlspecialchars($_POST['departmentID']);
 
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "departments SET	department_name = ?, department_short_name = ?, department_long_name = ? WHERE department_id = ?");
-    if ($stmt->execute(array($department_name, $department_short_name, $department_long_name, $departmentID))) {
-        $pdo = null;
+    $department_data = new Departments\DepartmentManager();
 
+    $result = $department_data->editDepartment($department_name, $department_short_name, $department_long_name, $departmentID);
+
+    if (!$result) {
         //Let the user know their information was updated
         $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Department ' . $department_long_name . ' (' . $department_short_name . ')  was  edited successfully.</span></div>';
         header("Location: " . BASE_URL . "/oc-admin/dataManagement/departmentsManager.php");
     } else {
-        echo "Error updating record: " . print_r($stmt->errorInfo(), true);
+        echo "Error updating record";
     }
-    $pdo = null;
 }
 
 /**#@+
@@ -457,23 +406,9 @@ function deleteDepartment()
     session_start();
     $departmentID = htmlspecialchars($_POST['departmentID']);
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $department_data = new Departments\DepartmentManager();
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "departments WHERE department_id = ?");
-    if (!$stmt->execute(array($departmentID))) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-
-    $pdo = null;
+    $department_data->deleteDepartment($departmentID);
 
     session_start();
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident  from database</span></div>';
@@ -495,27 +430,12 @@ function deleteDepartment()
  **/
 function getIncidentTypes()
 {
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $result = $pdo->query("SELECT * FROM " . DB_PREFIX . "incident_types");
+    $incident_data = new Incidents\IncidentManager();
+
+    $result = $incident_data->getIncidentTypes();
 
     if (!$result) {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $num_rows = $result->rowCount();
-    $pdo = null;
-
-
-    if ($num_rows == 0) {
         echo "<div class=\"alert alert-info\"><span>There are no incident types in the database.</span></div>";
     } else {
         echo '
@@ -558,7 +478,7 @@ function getIncidentTypes()
                 ';
             }
 
-            echo '<input name="WeaponID" type="hidden" value=' . $row[0] . ' />
+            echo '<input name="incidentTypeID" type="hidden" value=' . $row[0] . ' />
             </form>
             </td>
             </tr>
@@ -582,25 +502,10 @@ function getIncidentTypes()
 function getIncidentTypeDetails()
 {
     $incidentTypeID = htmlspecialchars($_POST['incidentTypeID']);
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("SELECT * FROM " . DB_PREFIX . "incident_types WHERE id = ?");
-    $resStatus = $stmt->execute(array($incidentTypeID));
-    $result = $stmt;
+    $incident_data = new Incidents\IncidentManager();
 
-    if (!$resStatus) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $incident_data->getIncidentTypeDetails($incidentTypeID);
 
     $encode = array();
     foreach ($result as $row) {
@@ -618,28 +523,17 @@ function editIncidentType()
     $incident_code        = !empty($_POST['incident_code']) ? htmlspecialchars($_POST['incident_code']) : '';
     $incident_name        = !empty($_POST['incident_name']) ? htmlspecialchars($_POST['incident_name']) : '';
 
+    $incident_data = new Incidents\IncidentManager();
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $result = $incident_data->editIncidentType($incident_code, $incident_name, $id);
 
-
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "incident_types SET code_id = ?, code_name = ? WHERE id = ?");
-    if ($stmt->execute(array($incident_code, $incident_name, $id))) {
-        $pdo = null;
-
+    if (!$result) {
         //Let the user know their information was updated
         $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Incident ' . $incident_code . ' – ' . $incident_name . ' edited successfully.</span></div>';
         header("Location: " . BASE_URL . "/oc-admin/dataManagement/incidentTypeManager.php");
     } else {
-        echo "Error updating record: " . print_r($stmt->errorInfo(), true);
+        echo "Error updating record";
     }
-    $pdo = null;
 }
 
 /**#@+
@@ -652,25 +546,11 @@ function editIncidentType()
 function deleteIncidentType()
 {
     session_start();
-    $id = htmlspecialchars($_POST['IncidentTypeID']);
+    $id = !empty($_POST['incidentTypeID']) ? htmlspecialchars($_POST['incidentTypeID']) : '';
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $incident_data = new Incidents\IncidentManager();
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "incident_types WHERE id = ?");
-    if (!$stmt->execute(array($id))) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-
-    $pdo = null;
+    $incident_data->deleteIncidentType($id);
 
     session_start();
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident type from database</span></div>';
@@ -692,26 +572,11 @@ function deleteIncidentType()
  **/
 function getRadioCodes()
 {
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $radio_data = new \Radio\radioCodesManager();
 
-    $result = $pdo->query("SELECT * FROM " . DB_PREFIX . "radio_codes");
+    $result = $radio_data->getRadioCodes();
 
     if (!$result) {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $num_rows = $result->rowCount();
-    $pdo = null;
-
-    if ($num_rows == 0) {
         echo "<div class=\"alert alert-info\"><span>There are no radio codes in the database.</span></div>";
     } else {
         echo '
@@ -754,7 +619,7 @@ function getRadioCodes()
                 ';
             }
 
-            echo '<input name="warrantTypeID" type="hidden" value=' . $row[0] . ' />
+            echo '<input name="deleteRadioCodeId" type="hidden" value=' . $row[0] . ' />
             </form>
             </td>
             </tr>
@@ -778,25 +643,10 @@ function getRadioCodes()
 function getRadioCodeDetails()
 {
     $id = htmlspecialchars($_POST['id']);
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("SELECT * FROM " . DB_PREFIX . "radio_codes WHERE id = ?");
-    $resStatus = $stmt->execute(array($id));
-    $result = $stmt;
+    $radio_data = new \Radio\radioCodesManager();
 
-    if (!$resStatus) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $radio_data->getRadioCodeDetails($id);
 
     $encode = array();
     foreach ($result as $row) {
@@ -815,27 +665,17 @@ function editRadioCode()
     $code_description        = !empty($_POST['code_description']) ? htmlspecialchars($_POST['code_description']) : '';
     $OnCall                    = !empty($_POST['OnCall']) ? htmlspecialchars($_POST['OnCall']) : '';
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $radio_data = new \Radio\radioCodesManager();
 
+    $result = $radio_data->editRadioCode($code_description, $code, $id);
 
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "radio_codes SET code_description = ?, code = ? WHERE id = ?");
-    if ($stmt->execute(array($code_description, $code, $id))) {
-        $pdo = null;
-
+    if (!$result) {
         //Let the user know their information was updated
         $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Code ' . $code . ' – ' . $code_description . '  edited successfully.</span></div>';
         header("Location: " . BASE_URL . "/oc-admin/dataManagement/radioCodesManager.php");
     } else {
-        echo "Error updating record: " . print_r($stmt->errorInfo(), true);
+        echo "Error updating record";
     }
-    $pdo = null;
 }
 
 /**#@+
@@ -848,29 +688,15 @@ function editRadioCode()
 function deleteRadioCode()
 {
     session_start();
-    $id = htmlspecialchars($_POST['warrantTypeID']);
+    $id = !empty($_POST['deleteRadioCodeId']) ? htmlspecialchars($_POST['deleteRadioCodeId']) : '';
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $radio_data = new \Radio\radioCodesManager();
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "radio_codes WHERE id = ?");
-    if (!$stmt->execute(array($id))) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-
-    $pdo = null;
+    $radio_data->deleteRadioCode($id);
 
     session_start();
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident type from database</span></div>';
-    header("Location: " . BASE_URL . "/oc-admin/dataManagement/warrantTypeManager.php");
+    header("Location: " . BASE_URL . "/oc-admin/dataManagement/radioCodesManager.php");
 }
 
 //** END Radio Codes Manager FUNCTIONS **//
@@ -887,27 +713,12 @@ function deleteRadioCode()
  **/
 function getStreets()
 {
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $result = $pdo->query("SELECT * FROM " . DB_PREFIX . "streets");
+    $street_data = new \Street\StreetManager();
+
+    $result = $street_data->getStreets();
 
     if (!$result) {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $num_rows = $result->rowCount();
-    $pdo = null;
-
-
-    if ($num_rows == 0) {
         echo "<div class=\"alert alert-info\"><span>There are no streets in the database.</span></div>";
     } else {
         echo '
@@ -974,25 +785,10 @@ function getStreets()
 function getStreetDetails()
 {
     $streetID = htmlspecialchars($_POST['streetID']);
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("SELECT * FROM " . DB_PREFIX . "streets WHERE id = ?");
-    $resStatus = $stmt->execute(array($streetID));
-    $result = $stmt;
+    $street_data = new \Street\StreetManager();
 
-    if (!$resStatus) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $street_data->getStreetDetails($streetID);
 
     $encode = array();
     foreach ($result as $row) {
@@ -1010,28 +806,18 @@ function editStreet()
     $name         = !empty($_POST['name']) ? htmlspecialchars($_POST['name']) : '';
     $county     = !empty($_POST['county']) ? htmlspecialchars($_POST['county']) : '';
 
+    $street_data = new \Street\StreetManager();
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $result = $street_data->editStreet($name, $county, $id);
 
-
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "streets SET name = ?, county = ? WHERE id = ?");
-    if ($stmt->execute(array($name, $county, $id))) {
-        $pdo = null;
+    if (!$result) {
 
         //Let the user know their information was updated
         $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Street ' . $name . ' in ' . $county . ' edited successfully.</span></div>';
         header("Location: " . BASE_URL . "/oc-admin/dataManagement/streetManager.php");
     } else {
-        echo "Error updating record: " . print_r($stmt->errorInfo(), true);
+        echo "Error updating record";
     }
-    $pdo = null;
 }
 
 /**#@+
@@ -1046,23 +832,9 @@ function deleteStreet()
     session_start();
     $id = htmlspecialchars($_POST['streetID']);
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $street_data = new \Street\StreetManager();
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "streets WHERE id = ?");
-    if (!$stmt->execute(array($id))) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-
-    $pdo = null;
+    $street_data->deleteStreet($id);
 
     session_start();
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed street from database</span></div>';
@@ -1182,28 +954,17 @@ function editVehicle()
     $make         = !empty($_POST['make']) ? htmlspecialchars($_POST['make']) : '';
     $model       = !empty($_POST['model']) ? htmlspecialchars($_POST['model']) : '';
 
+    $veh_data = new Vehicles\vehicleManager();
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $result = $veh_data->editVehicle($make, $model, $id);
 
-
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "vehicles SET make = ?, model = ? WHERE id = ?");
-    if ($stmt->execute(array($make, $model, $id))) {
-        $pdo = null;
-
+    if (!$result) {
         /** Indicate that the vehicle record was updated successfully **/
         $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Vehicle ' . $make . ' ' . $model . ' edited successfully.</span></div>';
         header("Location: " . BASE_URL . "/oc-admin/dataManagement/vehicleManager.php");
     } else {
-        echo "Error updating record: " . print_r($stmt->errorInfo(), true);
+        echo "Error updating record";
     }
-    $pdo = null;
 }
 
 /**#@+
@@ -1216,27 +977,11 @@ function editVehicle()
 function deleteVehicle()
 {
     session_start();
-    $id         = !empty($_POST['make']) ? htmlspecialchars($_POST['vehicleID']) : '';
-    $make         = !empty($_POST['make']) ? htmlspecialchars($_POST['make']) : '';
-    $model       = !empty($_POST['model']) ? htmlspecialchars($_POST['model']) : '';
+    $id         = !empty($_POST['vehicleID']) ? htmlspecialchars($_POST['vehicleID']) : '';
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $veh_data = new Vehicles\vehicleManager();
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "vehicles WHERE id = ?");
-    if (!$stmt->execute(array($id))) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-
-    $pdo = null;
+    $veh_data->deleteVehicle($id);
 
     session_start();
     $_SESSION['successMessage'] = "<div class=\"alert alert-success\"><span>Vehicle " . $_POST['make'] . " " . $_POST['model'] . " removed successfully.</div>";
@@ -1258,26 +1003,11 @@ function deleteVehicle()
  **/
 function getWarningTypes()
 {
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $warning_data = new Warnings\WarningManager();
 
-    $result = $pdo->query("SELECT * FROM " . DB_PREFIX . "warning_types");
+    $result = $warning_data->getWarningTypes();
 
     if (!$result) {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $num_rows = $result->rowCount();
-    $pdo = null;
-
-    if ($num_rows == 0) {
         echo "<div class=\"alert alert-info\"><span>There are no warning types in the database.</span></div>";
     } else {
         echo '
@@ -1342,25 +1072,10 @@ function getWarningTypes()
 function getWarningTypeDetails()
 {
     $warningTypeID = htmlspecialchars($_POST['warningTypeID']);
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("SELECT * FROM " . DB_PREFIX . "warning_types WHERE id = ?");
-    $resStatus = $stmt->execute(array($warningTypeID));
-    $result = $stmt;
+    $warning_data = new Warnings\WarningManager();
 
-    if (!$resStatus) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $warning_data->getWarningTypeDetails($warningTypeID);
 
     $encode = array();
     foreach ($result as $row) {
@@ -1373,30 +1088,20 @@ function getWarningTypeDetails()
 
 function editWarningType()
 {
-    $id                            = !empty($_POST['warningTypeID']) ? htmlspecialchars($_POST['warningTypeID']) : '';
+    $id                         = !empty($_POST['warningTypeID']) ? htmlspecialchars($_POST['warningTypeID']) : '';
     $warning_description        = !empty($_POST['warning_description']) ? htmlspecialchars($_POST['warning_description']) : '';
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $warning_data = new Warnings\WarningManager();
 
+    $result = $warning_data->editWarningType($warning_description, $id);
 
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "warning_types SET warning_description = ? WHERE id = ?");
-    if ($stmt->execute(array($warning_description, $id))) {
-        $pdo = null;
-
+    if (!$result) {
         //Let the user know their information was updated
         $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Incident edited successfully.</span></div>';
         header("Location: " . BASE_URL . "/oc-admin/dataManagement/warningTypeManager.php");
     } else {
-        echo "Error updating record: " . print_r($stmt->errorInfo(), true);
+        echo "Error updating record";
     }
-    $pdo = null;
 }
 
 /**#@+
@@ -1411,23 +1116,9 @@ function deleteWarningType()
     session_start();
     $id = htmlspecialchars($_POST['warningTypeID']);
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $warning_data = new Warnings\WarningManager();
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "warning_types WHERE id = ?");
-    if (!$stmt->execute(array($id))) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-
-    $pdo = null;
+    $warning_data->deleteWarningType($id);
 
     session_start();
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident type from database</span></div>';
@@ -1449,26 +1140,11 @@ function deleteWarningType()
  **/
 function getWarrantTypes()
 {
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $warrant_data = new Warrants\WarrantManager();
 
-    $result = $pdo->query("SELECT * FROM " . DB_PREFIX . "warrant_types");
+    $result = $warrant_data->getWarrantTypes();
 
     if (!$result) {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $num_rows = $result->rowCount();
-    $pdo = null;
-
-    if ($num_rows == 0) {
         echo "<div class=\"alert alert-info\"><span>There are no warrant types in the database.</span></div>";
     } else {
         echo '
@@ -1535,25 +1211,10 @@ function getWarrantTypes()
 function getWarrantTypeDetails()
 {
     $warrantTypeID = htmlspecialchars($_POST['warrantTypeID']);
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("SELECT * FROM " . DB_PREFIX . "warrant_types WHERE id = ?");
-    $resStatus = $stmt->execute(array($warrantTypeID));
-    $result = $stmt;
+    $warrant_data = new Warrants\WarrantManager();
 
-    if (!$resStatus) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $warrant_data->getWarrantTypeDetails($warrantTypeID);
 
     $encode = array();
     foreach ($result as $row) {
@@ -1571,27 +1232,17 @@ function editWarrantType()
     $warrant_violent            = !empty($_POST['warrant_violent']) ? htmlspecialchars($_POST['warrant_violent']) : '';
     $warrant_description        = !empty($_POST['warrant_description']) ? htmlspecialchars($_POST['warrant_description']) : '';
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $warrant_data = new Warrants\WarrantManager();
 
+    $result = $warrant_data->editWarrantType($warrant_violent, $warrant_description, $id);
 
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "warrant_types SET warrant_violent = ?, warrant_description = ? WHERE id = ?");
-    if ($stmt->execute(array($warrant_violent, $warrant_description, $id))) {
-        $pdo = null;    
-
+    if (!$result) {
         //Let the user know their information was updated
         $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Warrant type "' . $warrant_description . '" edited successfully.</span></div>';
         header("Location: " . BASE_URL . "/oc-admin/dataManagement/warrantTypeManager.php");
     } else {
-        echo "Error updating record: " . print_r($stmt->errorInfo(), true);
+        echo "Error updating record";
     }
-    $pdo = null;
 }
 
 /**#@+
@@ -1606,24 +1257,9 @@ function deleteWarrantType()
     session_start();
     $id = htmlspecialchars($_POST['warrantTypeID']);
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $warrant_data = new Warrants\WarrantManager();
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "warrant_types WHERE id = ?");
-    if (!$stmt->execute(array($id))) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-
-    $pdo = null;
-
+    $warrant_data->deleteWarrantType($id);
     session_start();
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed warrant type from database</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/warrantTypeManager.php");
@@ -1644,27 +1280,11 @@ function deleteWarrantType()
  **/
 function getWeapons()
 {
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $weapon_data = new Weapons\WeaponManager();
 
-    $result = $pdo->query("SELECT * FROM " . DB_PREFIX . "weapons");
+    $result = $weapon_data->getWeapons();
 
     if (!$result) {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $num_rows = $result->rowCount();
-    $pdo = null;
-
-
-    if ($num_rows == 0) {
         echo "<div class=\"alert alert-info\"><span>There are no weapons in the database.</span></div>";
     } else {
         echo '
@@ -1731,25 +1351,10 @@ function getWeapons()
 function getWeaponDetails()
 {
     $weaponID = htmlspecialchars($_POST['weaponID']);
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("SELECT * FROM " . DB_PREFIX . "weapons WHERE id = ?");
-    $resStatus = $stmt->execute(array($weaponID));
-    $result = $stmt;
+    $weapon_data = new Weapons\WeaponManager();
 
-    if (!$resStatus) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $weapon_data->getWeaponDetails($weaponID);
 
     $encode = array();
     foreach ($result as $row) {
@@ -1768,27 +1373,18 @@ function editWeapon()
     $weapon_name         = !empty($_POST['weapon_name']) ? htmlspecialchars($_POST['weapon_name']) : '';
 
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $weapon_data = new Weapons\WeaponManager();
+
+    $result = $weapon_data->editWeapon($weapon_name, $weapon_type, $id);
 
 
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "weapons SET weapon_name = ?, weapon_type = ? WHERE id = ?");
-    if ($stmt->execute(array($weapon_name, $weapon_type, $id))) {
-        $pdo = null;
-
+    if (!$result) {
         //Let the user know their information was updated
         $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Weapon ' . $weapon_name . ' ' . $weapon_type . ' edited successfully.</span></div>';
         header("Location: " . BASE_URL . "/oc-admin/dataManagement/weaponManager.php");
     } else {
-        echo "Error updating record: " . print_r($stmt->errorInfo(), true);
+        echo "Error updating record";
     }
-    $pdo = null;
 }
 
 /**#@+
@@ -1803,23 +1399,9 @@ function deleteWeapon()
     session_start();
     $id = htmlspecialchars($_POST['WeaponID']);
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
+    $weapon_data = new Weapons\WeaponManager();
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "weapons WHERE id = ?");
-    if (!$stmt->execute(array($id))) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-
-    $pdo = null;
+    $weapon_data->deleteWeapon($id);
 
     session_start();
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed weapon from database</span></div>';
@@ -1847,15 +1429,7 @@ function resetData()
 {
     $dataType     =   !empty($_POST['dataType']) ? $_POST['dataType'] : '';
 
-    try {
-        $pdo    =   new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    if ($_POST == "allData") {
+    if ($_POST["dataType"] == "allData") {
         $tables = array(
             "user_departments",
             "user_departments_temp",
@@ -1867,7 +1441,6 @@ function resetData()
             "calls_users",
             "call_history",
             "call_list",
-            "call_citations",
             "civilian_names",
             "colors",
             "departments",
@@ -1885,27 +1458,19 @@ function resetData()
             "tones",
             "vehicles",
             "weapons",
-            "radio_cdoes",
+            "radio_codes",
             "warning_types",
             "warrant_types",
             "citation_types"
         );
         foreach ($tables as $value) {
-            $stmt = $pdo->prepare("TRUNCATE TABLE " . DB_PREFIX . $value);
+            $system_data = new System\dbReset();
+            $system_data->clearData($value);
         };
     } else {
-        $stmt = $pdo->prepare("TRUNCATE TABLE " . DB_PREFIX . $dataType);
+        $system_data = new System\dbReset();
+        $system_data->clearData($dataType);
     }
-
-    $result = $stmt->execute();
-
-    if (!$result) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-
-    $pdo = null;
 
     session_start();
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully reset the ' . strtoupper($dataType) . ' table.</span></div>';

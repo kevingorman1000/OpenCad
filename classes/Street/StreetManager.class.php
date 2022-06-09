@@ -1,12 +1,12 @@
 <?php
 
-namespace Vehicles;
+namespace Street;
 
-class vehicleManager extends \Dbh
+class StreetManager extends \Dbh
 {
-    public function getVehicles()
+    public function getStreets()
     {
-        $stmt = $this->connect()->prepare("SELECT * FROM " . DB_PREFIX . "vehicles");
+        $stmt = $this->connect()->prepare("SELECT * FROM " . DB_PREFIX . "streets");
         if (!$stmt->execute()) {
             $_SESSION['error'] = $stmt->errorInfo();
             header('Location: ' . BASE_URL . '/plugins/error/index.php');
@@ -21,26 +21,10 @@ class vehicleManager extends \Dbh
         }
     }
 
-    public function getVehicleDetails($vehId)
+    public function getStreetDetails($id)
     {
-        $stmt = $this->connect()->prepare("SELECT * FROM " . DB_PREFIX . "vehicles WHERE id = ?");
-        if (!$stmt->execute(array($vehId))) {
-            $_SESSION['error'] = $stmt->errorInfo();
-            header('Location: ' . BASE_URL . '/plugins/error/index.php');
-            die();
-        }
-
-        if ($stmt->rowCount() <= 0) {
-            return false;
-        } else {
-            $results = $stmt->fetchAll();
-            return $results;
-        }
-    }
-    public function editVehicle($make, $model, $id)
-    {
-        $stmt = $this->connect()->prepare("UPDATE " . DB_PREFIX . "vehicles SET make = ?, model = ? WHERE id = ?");
-        if (!$stmt->execute(array($make, $model, $id))) {
+        $stmt = $this->connect()->prepare("SELECT * FROM " . DB_PREFIX . "streets WHERE id = ?");
+        if (!$stmt->execute(array($id))) {
             $_SESSION['error'] = $stmt->errorInfo();
             header('Location: ' . BASE_URL . '/plugins/error/index.php');
             die();
@@ -54,9 +38,26 @@ class vehicleManager extends \Dbh
         }
     }
 
-    public function deleteVehicle($id)
+    public function editStreet($name, $county, $id)
     {
-        $stmt = $this->connect()->prepare("DELETE FROM " . DB_PREFIX . "vehicles WHERE id = ?");
+        $stmt = $this->connect()->prepare("UPDATE " . DB_PREFIX . "streets SET name = ?, county = ? WHERE id = ?");
+        if (!$stmt->execute(array($name, $county, $id))) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
+
+    public function deleteStreet($id)
+    {
+        $stmt = $this->connect()->prepare("DELETE FROM " . DB_PREFIX . "streets WHERE id = ?");
         if (!$stmt->execute(array($id))) {
             $_SESSION['error'] = $stmt->errorInfo();
             header('Location: ' . BASE_URL . '/plugins/error/index.php');

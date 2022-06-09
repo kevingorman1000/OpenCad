@@ -51,4 +51,20 @@ class CitationManager extends \Dbh{
             return $results;
         }
     }
+
+    public function deleteCitationType($id){
+        $stmt = $this->connect()->prepare("DELETE FROM " . DB_PREFIX . "citation_types WHERE citation_id = ?");
+        if (!$stmt->execute(array($id))) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
 }
