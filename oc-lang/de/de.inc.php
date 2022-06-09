@@ -255,6 +255,12 @@ $arrLang['CIV_REG_notes'] = "";
 $arrLang['MODERATOR_EDIT_USER'] = "";
 $arrLang['CIV_REG_notes'] = "";
 
+$arrLang['MODERATOR_EDIT_VEHICLE'] = "";
+$arrLang['CIV_REG_notes'] = "";
+
+$arrLang['MODERATOR_DELETE_VEHICLE'] = "";
+$arrLang['CIV_REG_notes'] = "";
+
 $arrLang['MODERATOR_DELETE_USER'] = "";
 $arrLang['CIV_REG_notes'] = "";
 

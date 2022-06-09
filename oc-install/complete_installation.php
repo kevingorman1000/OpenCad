@@ -95,6 +95,8 @@ if ($passed_step == 10) {
 	$MODERATOR_REMOVE_GROUP 			= isset($_SESSION['MODERATOR_REMOVE_GROUP']) ? prepare_input($_SESSION['MODERATOR_REMOVE_GROUP']) : '';
 	$MODERATOR_DELETE_USER 				= isset($_SESSION['MODERATOR_DELETE_USER']) ? prepare_input($_SESSION['MODERATOR_DELETE_USER']) : '';
 	$MODERATOR_NCIC_EDITOR 				= isset($_SESSION['MODERATOR_NCIC_EDITOR']) ? prepare_input($_SESSION['MODERATOR_NCIC_EDITOR']) : '';
+	$MODERATOR_EDIT_VEHICLE 			= isset($_SESSION['MODERATOR_EDIT_VEHICLE']) ? prepare_input($_SESSION['MODERATOR_EDIT_VEHICLE']) : '';
+	$MODERATOR_DELETE_VEHICLE			= isset($_SESSION['MODERATOR_DELETE_VEHICLE']) ? prepare_input($_SESSION['MODERATOR_DELETE_VEHICLE']) : '';
 
 	$MODERATOR_DATA_MANAGER				= isset($_SESSION['MODERATOR_DATA_MANAGER']) ? prepare_input($_SESSION['MODERATOR_DATA_MANAGER']) : '';
 	$MODERATOR_DATAMAN_CITATIONTYPES	= isset($_SESSION['MODERATOR_DATAMAN_CITATIONTYPES']) ? prepare_input($_SESSION['MODERATOR_DATAMAN_CITATIONTYPES']) : '';
@@ -231,6 +233,9 @@ if ($passed_step == 10) {
 							$config_file = str_replace('<MODERATOR_DATAMAN_WARRANTTYPES>', $MODERATOR_DATAMAN_WARRANTTYPES, $config_file);
 							$config_file = str_replace('<MODERATOR_DATAMAN_WEAPONS>', $MODERATOR_DATAMAN_WEAPONS, $config_file);
 							$config_file = str_replace('<MODERATOR_DATAMAN_IMPEXPRESET>', $MODERATOR_DATAMAN_IMPEXPRESET, $config_file);
+
+							$config_file = str_replace('<MODERATOR_EDIT_VEHICLE>', $MODERATOR_EDIT_VEHICLE, $config_file);
+							$config_file = str_replace('<MODERATOR_DELETE_VEHICLE>', $MODERATOR_DELETE_VEHICLE, $config_file);
 
 							$config_file = str_replace('<DEMO_MODE>', $DEMO_MODE, $config_file);
 							$config_file = str_replace('<USE_GRAVATAR>', $USE_GRAVATAR, $config_file);

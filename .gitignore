@@ -17,3 +17,4 @@ log_file
 sql.php
 *adminer*.php
 errorlog
+test.php

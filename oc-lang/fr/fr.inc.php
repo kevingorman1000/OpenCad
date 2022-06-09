@@ -258,6 +258,12 @@ $arrLang['CIV_REG_notes'] = "";
 $arrLang['MODERATOR_DELETE_USER'] = "";
 $arrLang['CIV_REG_notes'] = "";
 
+$arrLang['MODERATOR_EDIT_VEHICLE'] = "";
+$arrLang['CIV_REG_notes'] = "";
+
+$arrLang['MODERATOR_DELETE_VEHICLE'] = "";
+$arrLang['CIV_REG_notes'] = "";
+
 $arrLang['MODERATOR_SUSPEND_WITHOUT_REASON'] = "";
 $arrLang['CIV_REG_notes'] = "";
 

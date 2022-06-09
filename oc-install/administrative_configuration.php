@@ -28,6 +28,9 @@
         $MODERATOR_EDIT_USER = isset($_POST['MODERATOR_EDIT_USER']) ? prepare_input($_POST['MODERATOR_EDIT_USER']) : '';
 		$MODERATOR_DELETE_USER = isset($_POST['MODERATOR_DELETE_USER']) ? prepare_input($_POST['MODERATOR_DELETE_USER']) : '';
 		
+		$MODERATOR_EDIT_VEHICLE = isset($_POST['MODERATOR_EDIT_VEHICLE']) ? prepare_input($_POST['MODERATOR_EDIT_VEHICLE']) : '';
+		$MODERATOR_DELETE_VEHICLE = isset($_POST['MODERATOR_DELETE_VEHICLE']) ? prepare_input($_POST['MODERATOR_DELETE_VEHICLE']) : '';
+		
         $MODERATOR_SUSPEND_WITH_REASON = isset($_POST['MODERATOR_SUSPEND_WITH_REASON']) ? prepare_input($_POST['MODERATOR_SUSPEND_WITH_REASON']) : '';
 		$MODERATOR_SUSPEND_WITHOUT_REASON = isset($_POST['MODERATOR_SUSPEND_WITHOUT_REASON']) ? prepare_input($_POST['MODERATOR_SUSPEND_WITHOUT_REASON']) : '';
 		$MODERATOR_REACTIVATE_USER = isset($_POST['MODERATOR_REACTIVATE_USER']) ? prepare_input($_POST['MODERATOR_REACTIVATE_USER']) : '';
@@ -51,6 +54,9 @@
 		$_SESSION['MODERATOR_APPROVE_USER'] = $MODERATOR_APPROVE_USER;
 		$_SESSION['MODERATOR_EDIT_USER'] = $MODERATOR_EDIT_USER;			
 		$_SESSION['MODERATOR_DELETE_USER'] = $MODERATOR_DELETE_USER;
+
+		$_SESSION['MODERATOR_EDIT_VEHICLE'] = $MODERATOR_EDIT_VEHICLE;
+		$_SESSION['MODERATOR_DELETE_VEHICLE'] = $MODERATOR_DELETE_VEHICLE;
 
 		$_SESSION['MODERATOR_SUSPEND_WITH_REASON'] = $MODERATOR_SUSPEND_WITH_REASON;
 		$_SESSION['MODERATOR_SUSPEND_WITHOUT_REASON'] = $MODERATOR_SUSPEND_WITHOUT_REASON;
@@ -82,6 +88,9 @@
         $MODERATOR_EDIT_USER = isset($_POST['MODERATOR_EDIT_USER']) ? prepare_input($_POST['MODERATOR_EDIT_USER']) : '';
 		$MODERATOR_DELETE_USER = isset($_POST['MODERATOR_DELETE_USER']) ? prepare_input($_POST['MODERATOR_DELETE_USER']) : '';
 		
+		$MODERATOR_EDIT_VEHICLE = isset($_POST['MODERATOR_EDIT_VEHICLE']) ? prepare_input($_POST['MODERATOR_EDIT_VEHICLE']) : '';
+		$MODERATOR_DELETE_VEHICLE = isset($_POST['MODERATOR_DELETE_VEHICLE']) ? prepare_input($_POST['MODERATOR_DELETE_VEHICLE']) : '';
+
         $MODERATOR_SUSPEND_WITH_REASON = isset($_POST['MODERATOR_SUSPEND_WITH_REASON']) ? prepare_input($_POST['MODERATOR_SUSPEND_WITH_REASON']) : '';
 		$MODERATOR_SUSPEND_WITHOUT_REASON = isset($_POST['MODERATOR_SUSPEND_WITHOUT_REASON']) ? prepare_input($_POST['MODERATOR_SUSPEND_WITHOUT_REASON']) : '';
 		$MODERATOR_REACTIVATE_USER = isset($_POST['MODERATOR_REACTIVATE_USER']) ? prepare_input($_POST['MODERATOR_REACTIVATE_USER']) : '';
@@ -107,6 +116,9 @@
 		$_SESSION['MODERATOR_EDIT_USER'] = $MODERATOR_EDIT_USER;			
 		$_SESSION['MODERATOR_DELETE_USER'] = $MODERATOR_DELETE_USER;
 
+		$_SESSION['MODERATOR_EDIT_VEHICLE'] = $MODERATOR_EDIT_VEHICLE;
+		$_SESSION['MODERATOR_DELETE_VEHICLE'] = $MODERATOR_DELETE_VEHICLE;
+		
 		$_SESSION['MODERATOR_SUSPEND_WITH_REASON'] = $MODERATOR_SUSPEND_WITH_REASON;
 		$_SESSION['MODERATOR_SUSPEND_WITHOUT_REASON'] = $MODERATOR_SUSPEND_WITHOUT_REASON;
 		$_SESSION['MODERATOR_REACTIVATE_USER'] = $MODERATOR_REACTIVATE_USER;
@@ -197,6 +209,14 @@
 					<div id="MODERATOR_EDIT_USER_notes" class="notes_container">
 						<h4><?php echo lang_key('MODERATOR_EDIT_USER'); ?></h4>
 						<p><?php echo lang_key('MODERATOR_EDIT_USER_notes'); ?></p>
+					</div>
+					<div id="MODERATOR_EDIT_VEHICLE_notes" class="notes_container">
+						<h4><?php echo lang_key('MODERATOR_EDIT_VEHICLE'); ?></h4>
+						<p><?php echo lang_key('MODERATOR_EDIT_VEHICLE_notes'); ?></p>
+					</div>
+					<div id="MODERATOR_DELETE_VEHICLE_notes" class="notes_container">
+						<h4><?php echo lang_key('MODERATOR_DELETE_VEHICLE'); ?></h4>
+						<p><?php echo lang_key('MODERATOR_DELETE_VEHICLE_notes'); ?></p>
 					</div>
 					<div id="MODERATOR_SUSPEND_WITH_REASON_notes" class="notes_container">
 						<h4><?php echo lang_key('MODERATOR_SUSPEND_WITH_REASON_URL'); ?></h4>
@@ -300,6 +320,16 @@
 				<td>&nbsp;<?php echo lang_key('MODERATOR_DATAMAN_VEHICLES'); ?>&nbsp;</td>
 				<td><input type="radio" name="MODERATOR_DATAMAN_VEHICLES" id="MODERATOR_DATAMAN_VEHICLES" <?php echo ($MODERATOR_DATAMAN_VEHICLES=='true')?'checked':'' ?> checked onfocus="textboxOnFocus('MODERATOR_DATAMAN_VEHICLES_notes')" onblur="textboxOnBlur('MODERATOR_DATAMAN_VEHICLES_notes')" value="true" />True
 				<input type="radio" name="MODERATOR_DATAMAN_VEHICLES" id="MODERATOR_DATAMAN_VEHICLES" <?php echo ($MODERATOR_DATAMAN_VEHICLES=='false')?'checked':'' ?> onfocus="textboxOnFocus('MODERATOR_DATAMAN_VEHICLES_notes')" onblur="textboxOnBlur('MODERATOR_DATAMAN_VEHICLES_notes')" value="false" />False</td>
+			</tr>
+			<tr>
+				<td>&nbsp;<?php echo lang_key('MODERATOR_EDIT_VEHICLE'); ?>&nbsp;</td>
+				<td><input type="radio" name="MODERATOR_EDIT_VEHICLE" id="MODERATOR_EDIT_VEHICLE" <?php echo ($MODERATOR_EDIT_VEHICLE=='true')?'checked':'' ?> checked onfocus="textboxOnFocus('MODERATOR_EDIT_VEHICLE')" onblur="textboxOnBlur('MODERATOR_EDIT_VEHICLE')" value="true" />True
+				<input type="radio" name="MODERATOR_EDIT_VEHICLE" id="MODERATOR_EDIT_VEHICLE" <?php echo ($MODERATOR_EDIT_VEHICLE=='false')?'checked':'' ?> onfocus="textboxOnFocus('MODERATOR_EDIT_VEHICLE')" onblur="textboxOnBlur('MODERATOR_EDIT_VEHICLE value="false" />False</td>
+			</tr>
+			<tr>
+				<td>&nbsp;<?php echo lang_key('MODERATOR_DELETE_VEHICLE'); ?>&nbsp;</td>
+				<td><input type="radio" name="MODERATOR_DELETE_VEHICLE" id="MODERATOR_DELETE_VEHICLE" <?php echo ($MODERATOR_DELETE_VEHICLE=='true')?'checked':'' ?> checked onfocus="textboxOnFocus('MODERATOR_DELETE_VEHICLE')" onblur="textboxOnBlur('MODERATOR_DELETE_VEHICLE')" value="true" />True
+				<input type="radio" name="MODERATOR_DELETE_VEHICLE" id="MODERATOR_DELETE_VEHICLE" <?php echo ($MODERATOR_DELETE_VEHICLE=='false')?'checked':'' ?> onfocus="textboxOnFocus('MODERATOR_DELETE_VEHICLE')" onblur="textboxOnBlur('MODERATOR_DELETE_VEHICLE')" value="false" />False</td>
 			</tr>
 			<tr>
 				<td>&nbsp;<?php echo lang_key('MODERATOR_DATAMAN_WARNINGTYPES'); ?>&nbsp;</td>

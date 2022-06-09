@@ -714,6 +714,23 @@ define('MODERATOR_NCIC_EDITOR', <MODERATOR_NCIC_EDITOR>);
   **/
   define('MODERATOR_DATAMAN_IMPEXPRES', <MODERATOR_DATAMAN_IMPEXPRESET>);
 
+  /**#@+
+  * MODERATOR_EDIT_VEHICLE
+   * If 'true' then Moderators will have access to editing vehicles,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  define('MODERATOR_EDIT_VEHICLE', <MODERATOR_EDIT_VEHICLE>);
+
+  /**#@+
+  * MODERATOR_DELETE_VEHICLE
+   * If 'true' then Moderators will have access to deleting vehicles,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  define('MODERATOR_DELETE_VEHICLE', <MODERATOR_DELETE_VEHICLE>);
+
+
 /**#@+
   * Extra Settings
 	*

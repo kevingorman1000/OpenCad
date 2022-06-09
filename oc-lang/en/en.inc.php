@@ -311,6 +311,14 @@ $arrLang['MODERATOR_APPROVE_USER_notes'] = "If 'true' then Moderators will be ab
 $arrLang['MODERATOR_EDIT_USER'] = "Moderator Edit User";
 $arrLang['MODERATOR_EDIT_USER_notes'] = "If 'true' then Moderators will be able to edit users profile, if 'false' then Moderators will not be able to edit users profile. This includes name, email, identifier, and roles. Moderators will be able to add user groups but the removal of them is governed by the MODERATOR_REMOVE_GROUPS setting.";
 
+
+$arrLang['MODERATOR_EDIT_VEHICLE'] = "Moderator Edit Vehicle";
+$arrLang['CIV_REG_notes'] = "If 'true' then Moderators will be able to edit vehicles, if 'false' then Moderators will not be able to edit vehicles";
+
+$arrLang['MODERATOR_DELETE_VEHICLE'] = "Moderator Delete Vehicle";
+$arrLang['CIV_REG_notes'] = "If 'true' then Moderators will be able to delete vehicles, if 'false' then Moderators will not be able to delete vehicles";
+
+
 $arrLang['MODERATOR_DELETE_USER'] = "Moderator Delete User";
 $arrLang['MODERATOR_DELETE_USER_notes'] = "If 'true' then Moderators will be able to delete users, else if 'false' Moderators will not be able to delete users.";
 
