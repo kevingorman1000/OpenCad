@@ -1475,6 +1475,7 @@ function getWarrantTypes()
             <table id="allWarrantTypes" class="table table-striped table-bordered">
             <thead>
                 <tr>
+                <th>Warrant violent</th>
                 <th>Warrant Description</th>
                 <th>Actions</th>
                 </tr>
@@ -1486,6 +1487,7 @@ function getWarrantTypes()
             echo '
             <tr>
                 <td>' . $row[1] . '</td>
+                <td>' . $row[2] . '</td>
                 <td>';
             if (DEMO_MODE == false) {
                 echo '<form action="' . BASE_URL . '/actions/dataActions.php" method="post">';
@@ -1556,7 +1558,8 @@ function getWarrantTypeDetails()
     $encode = array();
     foreach ($result as $row) {
         $encode["warrantTypeID"] = $row[0];
-        $encode["warrant_description"] = $row[1];
+        $encode["warrant_violent"] = $row[1];
+        $encode["warrant_description"] = $row[2];
     }
 
     echo json_encode($encode);
@@ -1564,7 +1567,8 @@ function getWarrantTypeDetails()
 
 function editWarrantType()
 {
-    $id                            = !empty($_POST['warrantTypeID']) ? htmlspecialchars($_POST['warrantTypeID']) : '';
+    $id                         = !empty($_POST['warrantTypeID']) ? htmlspecialchars($_POST['warrantTypeID']) : '';
+    $warrant_violent            = !empty($_POST['warrant_violent']) ? htmlspecialchars($_POST['warrant_violent']) : '';
     $warrant_description        = !empty($_POST['warrant_description']) ? htmlspecialchars($_POST['warrant_description']) : '';
 
     try {
@@ -1577,9 +1581,9 @@ function editWarrantType()
     }
 
 
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "warrant_types SET warrant_description = ? WHERE id = ?");
-    if ($stmt->execute(array($warrant_description, $id))) {
-        $pdo = null;
+    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "warrant_types SET warrant_violent = ?, warrant_description = ? WHERE id = ?");
+    if ($stmt->execute(array($warrant_violent, $warrant_description, $id))) {
+        $pdo = null;    
 
         //Let the user know their information was updated
         $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Warrant type "' . $warrant_description . '" edited successfully.</span></div>';

@@ -43,7 +43,7 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
     }
     else
     {
-        permikssionDenied();
+        permissionDenied();
     } 
 
     $successMessage = "";
@@ -235,6 +235,15 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
                     <form role="form" method="post" action="<?php echo BASE_URL; ?>/actions/dataActions.php"
                         class="form-horizontal">
                         <div class="form-group row">
+                            <label class="col-md-3 control-label">Warrant Violent</label>
+                            <div class="col-md-9">
+                                <input type="text" name="warrant_violent" class="form-control"
+                                    id="warrant_violent" />
+                                <span class="fas fa-exclamation-triangle form-control-feedback right"
+                                    aria-hidden="true"></span> </div>
+                            <!-- ./ col-sm-9 -->
+                        </div>
+                        <div class="form-group row">
                             <label class="col-md-3 control-label">Warrant Description</label>
                             <div class="col-md-9">
                                 <input type="text" name="warrant_description" class="form-control"
@@ -287,6 +296,8 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
                 console.log(result);
                 data = JSON.parse(result);
 
+                
+                $('input[name="warrant_violent"]').val(data['warrant_violent']);
                 $('input[name="warrant_description"]').val(data['warrant_description']);
                 $('input[name="warrantTypeID"]').val(data['warrantTypeID']);
             },
