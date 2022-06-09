@@ -6,7 +6,7 @@
 
 -------------------
 # Note
-This repo is cloned from the [Offical OpenCAD Repo](https://guides.opencad.io](https://github.com/opencad-app/OpenCAD-php) Please view there for the latest updates. This repo is here simply for my own project. You are welcome to use it as it has resolved some issues as is more upto date but be warned, this project may be archieved at any point! 
+This repo is cloned from the [I'm an inline-style link](https://guides.opencad.io](https://github.com/opencad-app/OpenCAD-php). Please view there for the latest updates. This repo is here simply for my own project. You are welcome to use it as it has resolved some issues as is more upto date but be warned, this project may be archieved at any point! 
 
 # OpenCAD
 Open Source Computer Aided Dispatch System for Roleplay Communities.
