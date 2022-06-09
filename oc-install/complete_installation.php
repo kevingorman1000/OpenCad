@@ -95,8 +95,19 @@ if ($passed_step == 10) {
 	$MODERATOR_REMOVE_GROUP 			= isset($_SESSION['MODERATOR_REMOVE_GROUP']) ? prepare_input($_SESSION['MODERATOR_REMOVE_GROUP']) : '';
 	$MODERATOR_DELETE_USER 				= isset($_SESSION['MODERATOR_DELETE_USER']) ? prepare_input($_SESSION['MODERATOR_DELETE_USER']) : '';
 	$MODERATOR_NCIC_EDITOR 				= isset($_SESSION['MODERATOR_NCIC_EDITOR']) ? prepare_input($_SESSION['MODERATOR_NCIC_EDITOR']) : '';
+	// Added 09/June/2022 by Kevingorman1000
 	$MODERATOR_EDIT_VEHICLE 			= isset($_SESSION['MODERATOR_EDIT_VEHICLE']) ? prepare_input($_SESSION['MODERATOR_EDIT_VEHICLE']) : '';
 	$MODERATOR_DELETE_VEHICLE			= isset($_SESSION['MODERATOR_DELETE_VEHICLE']) ? prepare_input($_SESSION['MODERATOR_DELETE_VEHICLE']) : '';
+	$MODERATOR_EDIT_WARNINGTYPE			= isset($_SESSION['MODERATOR_EDIT_WARNINGTYPE']) ? prepare_input($_SESSION['MODERATOR_EDIT_WARNINGTYPE']) : '';
+	$MODERATOR_DELETE_WARNINGTYPE		= isset($_SESSION['MODERATOR_DELETE_WARNINGTYPE']) ? prepare_input($_SESSION['MODERATOR_DELETE_WARNINGTYPE']) : '';
+	$MODERATOR_EDIT_INCIDENTTYPE		= isset($_SESSION['MODERATOR_EDIT_INCIDENTTYPE']) ? prepare_input($_SESSION['MODERATOR_EDIT_INCIDENTTYPE']) : '';
+	$MODERATOR_DELETE_INCIDENTTPYE		= isset($_SESSION['MODERATOR_DELETE_INCIDENTTPYE']) ? prepare_input($_SESSION['MODERATOR_DELETE_INCIDENTTPYE']) : '';
+	$MODERATOR_EDIT_STREET			    = isset($_SESSION['MODERATOR_EDIT_STREET']) ? prepare_input($_SESSION['MODERATOR_EDIT_STREET']) : '';
+	$MODERATOR_DELETE_STREET			= isset($_SESSION['MODERATOR_DELETE_STREET']) ? prepare_input($_SESSION['MODERATOR_DELETE_STREET']) : '';
+	$MODERATOR_EDIT_WARRANTTYPE			= isset($_SESSION['MODERATOR_EDIT_WARRANTTYPE']) ? prepare_input($_SESSION['MODERATOR_EDIT_WARRANTTYPE']) : '';
+	$MODERATOR_DELETE_WARRANTTYPE		= isset($_SESSION['MODERATOR_DELETE_WARRANTTYPE']) ? prepare_input($_SESSION['MODERATOR_DELETE_WARRANTTYPE']) : '';
+	$MODERATOR_EDIT_WEAPON			    = isset($_SESSION['MODERATOR_EDIT_WEAPON']) ? prepare_input($_SESSION['MODERATOR_EDIT_WEAPON']) : '';
+	$MODERATOR_DELETE_WEAPON			= isset($_SESSION['MODERATOR_DELETE_WEAPON']) ? prepare_input($_SESSION['MODERATOR_DELETE_WEAPON']) : '';
 
 	$MODERATOR_DATA_MANAGER				= isset($_SESSION['MODERATOR_DATA_MANAGER']) ? prepare_input($_SESSION['MODERATOR_DATA_MANAGER']) : '';
 	$MODERATOR_DATAMAN_CITATIONTYPES	= isset($_SESSION['MODERATOR_DATAMAN_CITATIONTYPES']) ? prepare_input($_SESSION['MODERATOR_DATAMAN_CITATIONTYPES']) : '';
@@ -120,6 +131,7 @@ if ($passed_step == 10) {
 		$sql_dump_file = EI_SQL_DUMP_FILE_UN_INSTALL;
 	} else {
 		$sql_dump_file = EI_SQL_DUMP_FILE_CREATE;
+		$sql_dump_file_gta = EI_SQL_DUMP_FILE_CREATE_GTAV;
 	}
 
 	if (empty($database_host)) $error_mg[] = lang_key('alert_database_host_empty');
@@ -149,10 +161,15 @@ if ($passed_step == 10) {
 				} else {
 					// read sql dump file
 					$sql_dump = file_get_contents($sql_dump_file);
-					if ($sql_dump != '') {
+					$sql_dump_gta = file_get_contents($sql_dump_file_gta);
+					if ($sql_dump != '' && $sql_dump_gta != '') {
 						if (false == ($db_error = apphp_db_install($sql_dump_file))) {
 							if (EI_MODE != 'debug') $error_mg[] = lang_key('error_sql_executing');
-						} else {
+						} 
+						if (false == ($db_error = apphp_db_install($sql_dump_file_gta))) {
+							if (EI_MODE != 'debug') $error_mg[] = lang_key('error_sql_executing');
+						} 
+						else {
 							// write additional operations here, like setting up system preferences etc.
 							// ...
 							$completed = true;
@@ -233,9 +250,19 @@ if ($passed_step == 10) {
 							$config_file = str_replace('<MODERATOR_DATAMAN_WARRANTTYPES>', $MODERATOR_DATAMAN_WARRANTTYPES, $config_file);
 							$config_file = str_replace('<MODERATOR_DATAMAN_WEAPONS>', $MODERATOR_DATAMAN_WEAPONS, $config_file);
 							$config_file = str_replace('<MODERATOR_DATAMAN_IMPEXPRESET>', $MODERATOR_DATAMAN_IMPEXPRESET, $config_file);
-
+							//Added 09/June/2022 by Kevingorman1000
 							$config_file = str_replace('<MODERATOR_EDIT_VEHICLE>', $MODERATOR_EDIT_VEHICLE, $config_file);
 							$config_file = str_replace('<MODERATOR_DELETE_VEHICLE>', $MODERATOR_DELETE_VEHICLE, $config_file);
+							$config_file = str_replace('<MODERATOR_EDIT_WARNINGTYPE>', $MODERATOR_EDIT_WARNINGTYPE, $config_file);
+							$config_file = str_replace('<MODERATOR_DELETE_WARNINGTYPE>', $MODERATOR_DELETE_WARNINGTYPE, $config_file);
+							$config_file = str_replace('<MODERATOR_EDIT_INCIDENTTYPE>', $MODERATOR_EDIT_INCIDENTTYPE, $config_file);
+							$config_file = str_replace('<MODERATOR_DELETE_INCIDENTTPYE>', $MODERATOR_DELETE_INCIDENTTPYE, $config_file);
+							$config_file = str_replace('<MODERATOR_EDIT_STREET>', $MODERATOR_EDIT_STREET, $config_file);
+							$config_file = str_replace('<MODERATOR_DELETE_STREET>', $MODERATOR_DELETE_STREET, $config_file);
+							$config_file = str_replace('<MODERATOR_EDIT_WARRANTTYPE>', $MODERATOR_EDIT_WARRANTTYPE, $config_file);
+							$config_file = str_replace('<MODERATOR_DELETE_WARRANTTYPE>', $MODERATOR_DELETE_WARRANTTYPE, $config_file);
+							$config_file = str_replace('<MODERATOR_EDIT_WEAPON>', $MODERATOR_EDIT_WEAPON, $config_file);
+							$config_file = str_replace('<MODERATOR_DELETE_WEAPON>', $MODERATOR_DELETE_WEAPON, $config_file);
 
 							$config_file = str_replace('<DEMO_MODE>', $DEMO_MODE, $config_file);
 							$config_file = str_replace('<USE_GRAVATAR>', $USE_GRAVATAR, $config_file);

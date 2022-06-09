@@ -34,7 +34,7 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
           //Do nothing
       }
     }
-    else if ($_SESSION['admin_privilege'] == 2 && MODERAOTR_DATAMAN_STREETS == true)
+    else if ($_SESSION['admin_privilege'] == 2 && MODERATOR_DATAMAN_STREETS == true)
     {
       if ($_SESSION['admin_privilege'] == 'Moderator')
       {

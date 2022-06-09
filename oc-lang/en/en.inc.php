@@ -311,16 +311,44 @@ $arrLang['MODERATOR_APPROVE_USER_notes'] = "If 'true' then Moderators will be ab
 $arrLang['MODERATOR_EDIT_USER'] = "Moderator Edit User";
 $arrLang['MODERATOR_EDIT_USER_notes'] = "If 'true' then Moderators will be able to edit users profile, if 'false' then Moderators will not be able to edit users profile. This includes name, email, identifier, and roles. Moderators will be able to add user groups but the removal of them is governed by the MODERATOR_REMOVE_GROUPS setting.";
 
-
-$arrLang['MODERATOR_EDIT_VEHICLE'] = "Moderator Edit Vehicle";
-$arrLang['CIV_REG_notes'] = "If 'true' then Moderators will be able to edit vehicles, if 'false' then Moderators will not be able to edit vehicles";
-
-$arrLang['MODERATOR_DELETE_VEHICLE'] = "Moderator Delete Vehicle";
-$arrLang['CIV_REG_notes'] = "If 'true' then Moderators will be able to delete vehicles, if 'false' then Moderators will not be able to delete vehicles";
-
-
 $arrLang['MODERATOR_DELETE_USER'] = "Moderator Delete User";
 $arrLang['MODERATOR_DELETE_USER_notes'] = "If 'true' then Moderators will be able to delete users, else if 'false' Moderators will not be able to delete users.";
+
+$arrLang['MODERATOR_EDIT_VEHICLE'] = "Moderator Edit Vehicle";
+$arrLang['MODERATOR_EDIT_VEHICLE_notes'] = "If 'true' then Moderators will be able to edit vehicles, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_DELETE_VEHICLE'] = "Moderator Delete Vehicle";
+$arrLang['MODERATOR_DELETE_VEHICLE_notes'] = "If 'true' then Moderators will be able to delete vehicles, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_EDIT_WARNINGTYPE'] = "Moderator Edit Warning Types";
+$arrLang['MODERATOR_EDIT_WARNINGTYPE_notes'] = "If 'true' then Moderators will be able to edit Warning Types, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_DELETE_WARNINGTYPE'] = "Moderator Delete Warning Types";
+$arrLang['MODERATOR_DELETE_WARNINGTYPE_notes'] = "If 'true' then Moderators will be able to delete Warning Types, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_EDIT_INCIDENTTYPE'] = "Moderator Edit Incident Types";
+$arrLang['MODERATOR_EDIT_INCIDENTTYPE_notes'] = "If 'true' then Moderators will be able to edit incident types, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_DELETE_INCIDENTTPYE'] = "Moderator Delete Incident Types";
+$arrLang['MODERATOR_DELETE_INCIDENTTPYE_notes'] = "If 'true' then Moderators will be able to delete incident types, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_EDIT_STREET'] = "Moderator Edit Streets";
+$arrLang['MODERATOR_EDIT_STREET_notes'] = "If 'true' then Moderators will be able to edit streets, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_DELETE_STREET'] = "Moderator Delete Streets";
+$arrLang['MODERATOR_DELETE_STREET_notes'] = "If 'true' then Moderators will be able to delete streets, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_EDIT_WARRANTTYPE'] = "Moderator Edit Warrant Types";
+$arrLang['MODERATOR_EDIT_WARRANTTYPE_notes'] = "If 'true' then Moderators will be able to edit warrant types, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_DELETE_WARRANTTYPE'] = "Moderator Delete Warrant Types";
+$arrLang['MODERATOR_DELETE_WARRANTTYPE_notes'] = "If 'true' then Moderators will be able to delete warrant types, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_EDIT_WEAPON'] = "Moderator Edit Weapons";
+$arrLang['MODERATOR_EDIT_WEAPON_notes'] = "If 'true' then Moderators will be able to edit weapons, if 'false' then this option will be disabled.";
+
+$arrLang['MODERATOR_DELETE_WEAPON'] = "Moderator Delete Weapons";
+$arrLang['MODERATOR_DELETE_WEAPON_notes'] = "If 'true' then Moderators will be able to delete weapons, if 'false' then this option will be disabled.";
 
 $arrLang['MODERATOR_SUSPEND_WITHOUT_REASON'] = "Moderator Suspend without Reason";
 $arrLang['MODERATOR_SUSPEND_WITHOUT_REASON_notes'] = "If 'true' then Moderators will be able suspend users without a reason, else if 'false' Moderators will not be able suspend users without a reason.";

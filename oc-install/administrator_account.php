@@ -76,7 +76,7 @@
 			}
 
 			if(empty($error_msg)){
-				$_SESSION['admin_name'] = $admin_name;
+				$_SESSION['admin_name'] = ucfirst($admin_name);
 				$_SESSION['admin_identifier'] = $admin_identifier;
 				$_SESSION['admin_password'] = $admin_password;
 				$_SESSION['admin_email'] = $admin_email;

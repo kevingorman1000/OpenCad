@@ -706,7 +706,7 @@ define('MODERATOR_NCIC_EDITOR', <MODERATOR_NCIC_EDITOR>);
 
 /**#@+
   * MODERATOR_DATAMAN_IMPEXPRESET
-   * If 'true' then Moderators will have access to the Radio Import/Export/Reset module of the Game Data Manager,
+  * If 'true' then Moderators will have access to the Radio Import/Export/Reset module of the Game Data Manager,
   * else if 'false' then Moderators will be denied access.
   *
   * @since OpenCAD version 0.2.6
@@ -716,7 +716,7 @@ define('MODERATOR_NCIC_EDITOR', <MODERATOR_NCIC_EDITOR>);
 
   /**#@+
   * MODERATOR_EDIT_VEHICLE
-   * If 'true' then Moderators will have access to editing vehicles,
+  * If 'true' then Moderators will have access to editing vehicles,
   * else if 'false' then Moderators will be denied access.
   *
   **/
@@ -724,11 +724,99 @@ define('MODERATOR_NCIC_EDITOR', <MODERATOR_NCIC_EDITOR>);
 
   /**#@+
   * MODERATOR_DELETE_VEHICLE
-   * If 'true' then Moderators will have access to deleting vehicles,
+  * If 'true' then Moderators will have access to deleting vehicles,
   * else if 'false' then Moderators will be denied access.
   *
   **/
   define('MODERATOR_DELETE_VEHICLE', <MODERATOR_DELETE_VEHICLE>);
+
+  /**#@+
+  * MODERATOR_EDIT_WARNINGTYPE
+  * If 'true' then Moderators will have access to editing waring types,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  define('MODERATOR_EDIT_WARNINGTYPE', <MODERATOR_EDIT_WARNINGTYPE>);
+
+  /**#@+
+  * MODERATOR_DELETE_WARNINGTYPE
+  * If 'true' then Moderators will have access to deleting warning types,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  define('MODERATOR_DELETE_WARNINGTYPE', <MODERATOR_DELETE_WARNINGTYPE>);
+
+  /**#@+
+  * MODERATOR_EDIT_INCIDENTTYPE
+  * If 'true' then Moderators will have access to editing incident types,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+
+  define('MODERATOR_EDIT_INCIDENTTYPE', <MODERATOR_EDIT_INCIDENTTYPE>);
+
+  /**#@+
+  * MODERATOR_DELETE_INCIDENTTPYE
+  * If 'true' then Moderators will have access to deleting incident types,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  
+  define('MODERATOR_DELETE_INCIDENTTPYE', <MODERATOR_DELETE_INCIDENTTPYE>);
+
+  /**#@+
+  * MODERATOR_EDIT_STREET
+  * If 'true' then Moderators will have access to editing streets,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  
+  define('MODERATOR_EDIT_STREET', <MODERATOR_EDIT_STREET>);
+
+  /**#@+
+  * MODERATOR_DELETE_STREET
+  * If 'true' then Moderators will have access to deleting streets,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  
+  define('MODERATOR_DELETE_STREET', <MODERATOR_DELETE_STREET>);
+
+  /**#@+
+  * MODERATOR_EDIT_WARRANTTYPE
+  * If 'true' then Moderators will have access to editing warrant types,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  
+  define('MODERATOR_EDIT_WARRANTTYPE', <MODERATOR_EDIT_WARRANTTYPE>);
+
+  /**#@+
+  * MODERATOR_DELETE_WARRANTTYPE
+  * If 'true' then Moderators will have access to deleting warrant types,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  
+  define('MODERATOR_DELETE_WARRANTTYPE', <MODERATOR_DELETE_WARRANTTYPE>);
+
+  /**#@+
+  * MODERATOR_EDIT_WEAPON
+  * If 'true' then Moderators will have access to editing weapons,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  
+  define('MODERATOR_EDIT_WEAPON', <MODERATOR_EDIT_WEAPON>);
+
+  /**#@+
+  * MODERATOR_DELETE_WEAPON
+  * If 'true' then Moderators will have access to deleting weapons,
+  * else if 'false' then Moderators will be denied access.
+  *
+  **/
+  
+  define('MODERATOR_DELETE_WEAPON', <MODERATOR_DELETE_WEAPON>);
 
 
 /**#@+

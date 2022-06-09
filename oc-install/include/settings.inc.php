@@ -124,6 +124,7 @@
     
     // *** sql dump file - file that includes SQL statements for instalation
     define('EI_SQL_DUMP_FILE_CREATE', '../sql/oc_install.sql');
+    define('EI_SQL_DUMP_FILE_CREATE_GTAV', '../sql/game_data/GTAV/oc_GTAV_data.sql');
     define('EI_SQL_DUMP_FILE_UPDATE', '../sql/oc_update.sql');
     define('EI_SQL_DUMP_FILE_UN_INSTALL', '../sql/oc_uninstall.sql');
 
