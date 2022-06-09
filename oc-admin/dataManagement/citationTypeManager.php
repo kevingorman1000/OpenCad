@@ -256,7 +256,7 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
                 <!-- ./ modal-body -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <input type="hidden" name="id" id="id" aria-hidden="true">
+                    <input type="hidden" name="citation_id" id="id" aria-hidden="true">
                     <input type="submit" name="editCitationType" class="btn btn-primary" value="Edit Citation Type" />
                 </div>
                 <!-- ./ modal-footer -->
@@ -295,17 +295,17 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
             },
             success: function(result) {
                 console.log(result);
-                data = JSON.parse(result);
-
+                data =jQuery.parseJSON(result);
                 $('input[name="citation_fine"]').val(data['citation_fine']);
                 $('input[name="citation_description"]').val(data['citation_description']);
-                $('input[name="id"]').val(data['id']);
+                $('input[name="citation_id"]').val(data['citation_id']);
             },
-
+            
             error: function(exception) {
-                alert('Exeption:' + exception);
+                alert('Exception:' + exception);
             }
         });
+        
     })
     </script>
 

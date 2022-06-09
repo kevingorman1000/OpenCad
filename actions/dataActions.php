@@ -12,9 +12,7 @@
 
 require_once(__DIR__ . "/../oc-config.php");
 include_once(__DIR__ . "/../plugins/api_auth.php");
-require(__DIR__."../../includes/autoloader.inc.php");
-
-
+require(__DIR__ . "../../includes/autoloader.inc.php");
 
 /* This file handles all actions for admin.php script */
 
@@ -136,26 +134,12 @@ else if (isset($_POST['getWeapons'])) {
  **/
 function getCitationTypes()
 {
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $result = $pdo->query("SELECT * FROM " . DB_PREFIX . "citation_types");
+    $citation_data = new Citations\CitationManager();
+
+    $result = $citation_data->getCitationTypes();
 
     if (!$result) {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $num_rows = $result->rowCount();
-    $pdo = null;
-
-    if ($num_rows == 0) {
         echo "<div class=\"alert alert-info\"><span>There are no citation types in the database.</span></div>";
     } else {
         echo '
@@ -198,7 +182,7 @@ function getCitationTypes()
                 ';
             }
 
-            echo '<input name="warrantTypeID" type="hidden" value=' . $row[0] . ' />
+            echo '<input name="citationTypeID" type="hidden" value=' . $row[0] . ' />
             </form>
             </td>
             </tr>
@@ -222,29 +206,14 @@ function getCitationTypes()
 function getCitationTypeDetails()
 {
     $id = htmlspecialchars($_POST['id']);
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("SELECT * FROM " . DB_PREFIX . "citation_types WHERE id = ?");
-    $resStatus = $stmt->execute(array($id));
-    $result = $stmt;
+    $citation_data = new Citations\CitationManager();
 
-    if (!$resStatus) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $citation_data->getCitationTypeDetails($id);
 
     $encode = array();
     foreach ($result as $row) {
-        $encode["id"] = $row[0];
+        $encode["citation_id"] = $row[0];
         $encode["citation_description"] = $row[1];
         $encode["citation_fine"] = $row[2];
     }
@@ -254,31 +223,21 @@ function getCitationTypeDetails()
 
 function editCitationType()
 {
-    $id                                = !empty($_POST['id']) ? htmlspecialchars($_POST['id']) : '';
+    $id                              = !empty($_POST['citation_id']) ? htmlspecialchars($_POST['citation_id']) : '';
     $citation_description           = !empty($_POST['citation_description']) ? htmlspecialchars($_POST['citation_description']) : '';
     $citation_fine                  = !empty($_POST['citation_fine']) ? htmlspecialchars($_POST['citation_fine']) : '';
 
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
+    $citation_data = new Citations\CitationManager();
+
+    $result = $citation_data->editCitationType($citation_description, $citation_fine, $id);
+
+    if (!$result) {
+        echo "Error updating record";
     }
 
-
-    $stmt = $pdo->prepare("UPDATE " . DB_PREFIX . "citation_types SET	citation_description = ?, citation_fine = ? WHERE id = ?");
-    if ($stmt->execute(array($citation_description, $citation_fine, $id))) {
-        $pdo = null;
-
-        //Let the user know their information was updated
-        $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Citation ' . $citation . ' with a recommended fine of ' . $code_fine . '  edited successfully.</span></div>';
-        header("Location: " . BASE_URL . "/oc-admin/dataManagement/citationTypeManager.php");
-    } else {
-        echo "Error updating record: " . print_r($stmt->errorInfo(), true);
-    }
-    $pdo = null;
+    //Let the user know their information was updated
+    $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Citation ' . $citation_description . ' with a recommended fine of ' . $citation_fine . '  edited successfully.</span></div>';
+    header("Location: " . BASE_URL . "/oc-admin/dataManagement/citationTypeManager.php");
 }
 
 /**#@+
@@ -292,7 +251,7 @@ function deleteCitationType()
 {
     session_start();
     $id = htmlspecialchars($_POST['citationTypeID']);
-
+   
     try {
         $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
     } catch (PDOException $ex) {
@@ -302,7 +261,7 @@ function deleteCitationType()
         die();
     }
 
-    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "citation_types WHERE id = ?");
+    $stmt = $pdo->prepare("DELETE FROM " . DB_PREFIX . "citation_types WHERE citation_id = ?");
     if (!$stmt->execute(array($id))) {
         $_SESSION['error'] = $stmt->errorInfo();
         header('Location: ' . BASE_URL . '/plugins/error/index.php');
@@ -1127,8 +1086,8 @@ function getVehicles()
     $veh_data = new Vehicles\vehicleManager();
 
     $vehicles = $veh_data->getVehicles();
-    
-    if(!$vehicles){
+
+    if (!$vehicles) {
         echo "<div class=\"alert alert-info\"><span>There are no vehicles in the database.</span></div>";
     } else {
         echo '
@@ -1195,25 +1154,10 @@ function getVehicles()
 function getVehicleDetails()
 {
     $vehicleID = htmlspecialchars($_POST['vehicleID']);
-    try {
-        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
-    } catch (PDOException $ex) {
-        $_SESSION['error'] = "Could not connect -> " . $ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
 
-    $stmt = $pdo->prepare("SELECT * FROM " . DB_PREFIX . "vehicles WHERE id = ?");
-    $resStatus = $stmt->execute(array($vehicleID));
-    $result = $stmt;
+    $veh_data = new Vehicles\vehicleManager();
 
-    if (!$resStatus) {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: ' . BASE_URL . '/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $veh_data->getVehicleDetails($vehicleID);
 
     $encode = array();
     foreach ($result as $row) {

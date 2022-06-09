@@ -811,7 +811,7 @@ define('MODERATOR_NCIC_EDITOR', <MODERATOR_NCIC_EDITOR>);
 
   /**#@+
   * MODERATOR_DELETE_WEAPON
-  * If 'true' then Moderators will have access to deleting weapons,
+  * If 'true' then Moderators will have access to deleting weapon,
   * else if 'false' then Moderators will be denied access.
   *
   **/
