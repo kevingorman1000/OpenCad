@@ -19,6 +19,8 @@ $arrLang['alert_wrong_testing_parameters'] = "Testing parameters are wrong! Plea
 $arrLang['alert_remove_files'] = "For security reasons, please remove the <b>oc-install/</b> folder from your server!";
 $arrLang['alert_wrong_parameter_passed'] = "Wrong parameter passed! Please back to the previous step and try again.";
 
+$arrLang['regenerate_keys'] = "Regenerate Keys";
+
 $arrLang['error_asp_tags'] = "This installation requires <b>ASP tags</b> settings turned ON.";
 $arrLang['error_can_not_open_config_file'] = "Database was successfully created! Cannot open configuration file _CONFIG_FILE_PATH_ to save info.";
 $arrLang['error_can_not_read_file'] = "Could not read file <b>_SQL_DUMP_FILE_</b>! Please check if a file exists.";
