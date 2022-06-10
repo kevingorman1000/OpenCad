@@ -440,13 +440,15 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
                     'userId': userId
                 },
                 success: function(result) {
-                    //console.log(result);
-                    data = JSON.parse(result);
-
+                    console.log(result);
+                    data = jQuery.parseJSON(result);
+                    
                     $('input[name="userName"]').val(data['name']);
                     $('input[name="userEmail"]').val(data['email']);
                     $('input[name="userIdentifier"]').val(data['identifier']);
                     $('input[name="userID"]').val(data['userId']);
+                    
+
 
                     for (var i = 0; i < data['department'].length; i++) {
                         //print $('select[name="userGroups"] option[value="'+data['department'][i]+'"]').val(1);

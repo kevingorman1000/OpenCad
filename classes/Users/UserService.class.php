@@ -11,7 +11,6 @@ class UserService extends \Dbh{
             header('Location: ' . BASE_URL . '/plugins/error/index.php');
             die();
         }
-
         if ($stmt->rowCount() <= 0) {
             return false;
         } else {
@@ -19,6 +18,36 @@ class UserService extends \Dbh{
             foreach($results as $result){
                 return $result;
             }
+        }
+    }
+
+    public function getUserDetails($uid){
+        $stmt = $this->connect()->prepare("SELECT id, name, email, identifier, admin_privilege FROM ".DB_PREFIX."users WHERE ID = ?");
+        if (!$stmt->execute(array($uid))) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
+
+    public function getUserGroupsEditor($uid){
+        $stmt = $this->connect()->prepare("SELECT ".DB_PREFIX."departments.department_name FROM ".DB_PREFIX."user_departments INNER JOIN ".DB_PREFIX."departments on ".DB_PREFIX."user_departments.department_id=".DB_PREFIX."departments.department_id WHERE ".DB_PREFIX."user_departments.user_id = ?");
+        if (!$stmt->execute(array($uid))) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
         }
     }
 }

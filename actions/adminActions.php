@@ -12,6 +12,8 @@
 
 require_once(__DIR__ . "/../oc-config.php");
 include_once(__DIR__ . "/../plugins/api_auth.php");
+require_once(__DIR__ . "../../includes/autoloader.inc.php");
+
 
 /*
 This file handles all actions for admin.php script
@@ -842,27 +844,10 @@ function reactivateUser()
 function getUserDetails()
 {
     $userId = htmlspecialchars($_POST['userId']);
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("SELECT id, name, email, identifier, admin_privilege FROM ".DB_PREFIX."users WHERE ID = ?");
-    $resStatus = $stmt->execute(array($userId));
-    $result = $stmt;
-
-    if (!$resStatus)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+ 
+    $user_data = new \Users\UserService();
+ 
+    $result = $user_data->getUserDetails($userId);
 
     $encode = array();
     foreach($result as $row)
@@ -913,28 +898,11 @@ function getUserID()
 
 function getUserGroupsEditor($encode, $userId)
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("SELECT ".DB_PREFIX."departments.department_name FROM ".DB_PREFIX."user_departments INNER JOIN ".DB_PREFIX."departments on ".DB_PREFIX."user_departments.department_id=".DB_PREFIX."departments.department_id WHERE ".DB_PREFIX."user_departments.user_id = ?");
-    $resStatus = $stmt->execute(array($userId));
-    $result = $stmt;
-
-    if (!$resStatus)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
+    
+    $user_data = new \Users\UserService();
+ 
+    $result = $user_data->getUserGroupsEditor($userId);
+   
     $counter = 0;
     foreach($result as $row)
     {

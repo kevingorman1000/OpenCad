@@ -14,6 +14,7 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
 
 require_once(__DIR__ . "/../oc-config.php");
 include(__DIR__ . '/generalActions.php');
+require_once(__DIR__ . "../../includes/autoloader.inc.php");
 
 /* Handle POST requests */
 /**
@@ -42,8 +43,6 @@ if (isset($_POST['delete_citation'])){
     create_name();
 }else if (isset($_POST['create_plate'])){
     create_plate();
-}else if (isset($_POST['reject_identity_request'])){
-    rejectRequest();
 }else if (isset($_POST['create_warrant'])){
     create_warrant();
 }else if (isset($_POST['create_citation'])){
@@ -60,29 +59,11 @@ if (isset($_POST['delete_citation'])){
 
 function ncicGetNames()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $result = $pdo->query("SELECT * FROM ".DB_PREFIX."ncic_names");
+    $result = $civ_data->ncicGetNamesAdmin();
 
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    if(!$result)
     {
         echo "<div class=\"alert alert-info\"><span>There are currently no names in the NCIC Database</span></div>";
     }
@@ -142,29 +123,11 @@ function ncicGetNames()
 
 function ncicGetPlates()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_plates.*, ".DB_PREFIX."ncic_names.name FROM ".DB_PREFIX."ncic_plates INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_names.id=".DB_PREFIX."ncic_plates.name_id");
+    $result = $civ_data->ncicGetPlatesAdmin();
 
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    if(!$result)
     {
         echo "<div class=\"alert alert-info\"><span>There are currently no vehicles in the NCIC Database</span></div>";
     }
@@ -199,7 +162,7 @@ function ncicGetPlates()
                 <td>'.$row['veh_make'].'</td>
                 <td>'.$row['veh_model'].'</td>
                 <td>'.$row['veh_pcolor'].'/'.$row['veh_scolor'].'</td>
-                <td>'.$row['veh_insurance'].' / '.$row['veh_insurance type'].'</td>
+                <td>'.$row['veh_insurance'].' / '.$row['veh_insurance_type'].'</td>
                 <td>'.$row['flags'].'</td>
                 <td>'.$row['notes'].'</td>
                 <td>
@@ -222,29 +185,11 @@ function ncicGetPlates()
 
 function ncicGetWeapons()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_weapons.*, ".DB_PREFIX."ncic_names.name FROM ".DB_PREFIX."ncic_weapons INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_names.id=".DB_PREFIX."ncic_weapons.name_id");
+    $result = $civ_data->ncicGetWeaponsAdmin();
 
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    if(!$result)
     {
         echo "<div class=\"alert alert-info\"><span>There are currently no weapons in the NCIC Database</span></div>";
     }
@@ -291,26 +236,9 @@ function delete_weapon()
 {
     $weaid = htmlspecialchars($_POST['weaid']);
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."ncic_weapons WHERE id = ?");
-    $result = $stmt->execute(array($weaid));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $civ_data->delete_weaponAdmin($weaid);
 
     session_start();
     $_SESSION['weaponMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian weapon</span></div>';
@@ -321,26 +249,9 @@ function delete_citation()
 {
     $cid = htmlspecialchars($_POST['cid']);
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."ncic_citations WHERE id = ?");
-    $result = $stmt->execute(array($cid));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $civ_data->delete_citationAdmin($cid);
 
     session_start();
     $_SESSION['citationMessage'] = '<div class="alert alert-success"><span>Successfully removed citation</span></div>';
@@ -351,26 +262,9 @@ function delete_arrest()
 {
     $aid = htmlspecialchars($_POST['aid']);
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."ncic_arrests WHERE id = ?");
-    $result = $stmt->execute(array($aid));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $civ_data->delete_arrestAdmin($aid);
 
     session_start();
     $_SESSION['arrestMessage'] = '<div class="alert alert-success"><span>Successfully removed arrest</span></div>';
@@ -381,26 +275,9 @@ function delete_warning()
 {
     $wgid = htmlspecialchars($_POST['wgid']);
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."ncic_warnings WHERE id = ?");
-    $result = $stmt->execute(array($wgid));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $civ_data->delete_warningAdmin($wgid);
 
     session_start();
     $_SESSION['warningMessage'] = '<div class="alert alert-success"><span>Successfully removed warning</span></div>';
@@ -411,26 +288,9 @@ function delete_warrant()
 {
     $wid = htmlspecialchars($_POST['wid']);
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."ncic_warrants WHERE id = ?");
-    $result = $stmt->execute(array($wid));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $civ_data->delete_warrantAdmin($wid);
 
     session_start();
     $_SESSION['warrantMessage'] = '<div class="alert alert-success"><span>Successfully removed warrant</span></div>';
@@ -439,29 +299,12 @@ function delete_warrant()
 
 function ncic_arrests()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_arrests.*, ".DB_PREFIX."ncic_names.name FROM ".DB_PREFIX."ncic_arrests INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_names.id=".DB_PREFIX."ncic_arrests.name_id");
+    $result = $civ_data->ncic_arrestsAdmins();
 
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
 
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    if(!$result)
     {
         echo "<div class=\"alert alert-info\"><span>There are currently no arrests in the NCIC Database</span></div>";
     }
@@ -512,29 +355,11 @@ function ncic_arrests()
 
 function ncic_warrants()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_warrants.*, ".DB_PREFIX."ncic_names.name FROM ".DB_PREFIX."ncic_warrants INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_names.id=".DB_PREFIX."ncic_warrants.name_id");
+    $result = $civ_data->ncic_warrantsAdmin();
 
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    if(!$result)
     {
         echo "<div class=\"alert alert-info\"><span>There are currently no warrants in the NCIC Database</span></div>";
     }
@@ -595,29 +420,11 @@ function ncic_warrants()
 
 function ncic_citations()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_citations.*, ".DB_PREFIX."ncic_names.name FROM ".DB_PREFIX."ncic_citations INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_names.id=".DB_PREFIX."ncic_citations.name_id");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    $result = $civ_data->ncic_citationsAdmin();
+    
+    if(!$result)
     {
         echo "<div class=\"alert alert-info\"><span>There are currently no citations in the NCIC Database</span></div>";
     }
@@ -668,29 +475,11 @@ function ncic_citations()
 
 function ncic_warnings()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_warnings.*, ".DB_PREFIX."ncic_names.name FROM ".DB_PREFIX."ncic_warnings INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_names.id=".DB_PREFIX."ncic_warnings.name_id");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    $result = $civ_data->ncic_warningsAdmin();
+    
+    if(!$result)
     {
         echo "<div class=\"alert alert-info\"><span>There are currently no warnings in the NCIC Database</span></div>";
     }
@@ -739,25 +528,10 @@ function ncic_warnings()
 
 function getUserList()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
 
-    $result = $pdo->query("SELECT users.id, users.name FROM ".DB_PREFIX."users");
+    $civ_data = new Civilian\CivilianManager();
 
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $result = $civ_data->getUserList();
 
 	foreach($result as $row)
 	{
@@ -767,27 +541,12 @@ function getUserList()
 
 function delete_name()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $uid = htmlspecialchars($_POST['uid']);
+    
+    $civ_data = new Civilian\CivilianManager();
 
-    $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."ncic_names WHERE id = ?");
-    $result = $stmt->execute(array(htmlspecialchars($_POST['uid'])));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
+    $civ_data->delete_name($uid);
+    
     session_start();
     $_SESSION['nameMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian name</span></div>';
     header("Location: ".BASE_URL."/oc-admin/ncicAdmin.php#name_panel");
@@ -797,25 +556,9 @@ function delete_plate()
 {
     $vehid = htmlspecialchars($_POST['vehid']);
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $civ_data = new Civilian\CivilianManager();
 
-    $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."ncic_plates WHERE id = ?");
-    $result = $stmt->execute(array($vehid));
-
-    if (!$result)
-    {
-        print_r($stmt->errorInfo());
-        die();
-    }
-    $pdo = null;
+    $civ_data->delete_name($vehid);
 
     session_start();
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian plate</span></div>';
@@ -830,6 +573,8 @@ function edit_name()
     $firstName = explode(" ", $fullName) [0];
     $lastName = explode(" ", $fullName) [1];
     
+    $civ_data = new Civilian\CivilianManager();
+
     //Set first name to all lowercase
     $firstName = strtolower($firstName);
     //Remove all special characters
@@ -846,29 +591,9 @@ function edit_name()
 	
 	$name = $firstName . ' ' . $lastName;
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("SELECT first_name FROM ".DB_PREFIX."ncic_names WHERE first_name = ?");
-    $result = $stmt->execute(array($name));
-
+    $result = $civ_data->edit_name($name);
+    
     if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $num_rows = $result->rowCount();
-
-    if (!$num_rows == 0)
     {
         $_SESSION['identityMessage'] = '<div class="alert alert-danger"><span>Name already exists</span></div>';
 
@@ -893,25 +618,17 @@ function edit_name()
 	$deceased = htmlspecialchars($_POST['civDec']);
     $editid = htmlspecialchars($_POST['Edit_id']);
 
-    $stmt = $pdo->prepare("UPDATE ".DB_PREFIX."ncic_names SET name = ?, dob = ?, address = ?, gender = ?, race = ?, dl_status = ?, hair_color = ?, build = ?, weapon_permit = ?, deceased = ? WHERE id = ?");
-    $result = $stmt->execute(array($name, $dob, $address, $sex, $race, $dlstatus, $hair, $build, $weapon, $deceased, $editid));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $result = $civ_data->edit_name($name, $dob, $address, $sex, $race, $dlstatus, $hair, $build, $weapon, $deceased, $editid);
 
     $_SESSION['identityMessage'] = '<div class="alert alert-success"><span>Successfully Update an identity</span></div>';
-
-    $pdo = null;
-    sleep(1);
+    
     header("Location:".BASE_URL."/oc-admin/ncicAdmin.php#name_panel");
 }
 
 function edit_plate()
 {
+    $civ_data = new Civilian\CivilianManager();
+
     session_start();
     
     $plate = htmlspecialchars($_POST['veh_plate']);
@@ -942,26 +659,7 @@ function edit_plate()
     $notes = htmlspecialchars($_POST['notes']);
     $plate_id = htmlspecialchars($_POST['Edit_plateId']);
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("UPDATE ".DB_PREFIX."ncic_plates SET name_id = ?, veh_plate = ?, veh_make = ?, veh_model = ?, veh_pcolor = ?, veh_scolor = ?, veh_insurance = ?, flags = ?, veh_reg_state = ?, notes = ? WHERE id = ?");
-    $result = $stmt->execute(array($userId, $veh_plate, $veh_make, $veh_model, $veh_pcolor, $veh_scolor, $veh_insurance, $flags, $veh_reg_state, $notes, $plate_id));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $civ_data->edit_name($userId, $veh_plate, $veh_make, $veh_model, $veh_pcolor, $veh_scolor, $veh_insurance, $flags, $veh_reg_state, $notes, $plate_id);
 
     session_start();
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully Updated plate to the database</span></div>';
@@ -971,55 +669,20 @@ function edit_plate()
 
 function editnameid()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $uid = htmlspecialchars($_POST['editid']);
+    $civ_data = new Civilian\CivilianManager();
+    $result = $civ_data->editNameId($uid);
 
-    $stmt = $pdo->prepare("SELECT ".DB_PREFIX."ncic_names.* FROM ".DB_PREFIX."ncic_names WHERE id = ?");
-    $result = $stmt->execute(array(htmlspecialchars($_POST['editid'])));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);
-    echo json_encode($data);
+    echo json_encode($result);
 }
 
 function editplateid()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    
+    $uid = htmlspecialchars($_POST['edit_plateid']);
+    $civ_data = new Civilian\CivilianManager();
+    $result = $civ_data->editplateid($uid);
 
-    $stmt = $pdo->prepare("SELECT ".DB_PREFIX."ncic_plates.* FROM ".DB_PREFIX."ncic_plates WHERE id = ?");
-    $result = $stmt->execute(array(htmlspecialchars($_POST['edit_plateid'])));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);
-    echo json_encode($data);
+    echo json_encode($result);
 }
 ?>
