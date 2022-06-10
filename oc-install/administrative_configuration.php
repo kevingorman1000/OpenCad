@@ -1,9 +1,8 @@
 <?php
 
-if(!isset($_SESSION)) 
-    { 
-        session_start(); 
-    } ;
+if (!isset($_SESSION)) {
+	session_start();
+};
 
 require_once('include/shared.inc.php');
 require_once('include/settings.inc.php');
@@ -26,6 +25,8 @@ if ($passed_step >= 7) {
 // handle form submission
 // -------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+	$GENERATE_GTAV_DATA = isset($_POST['GENERATE_GTAV_DATA']) ? prepare_input($_POST['GENERATE_GTAV_DATA']) : '';
 
 	$MODERATOR_APPROVE_USER = isset($_POST['MODERATOR_APPROVE_USER']) ? prepare_input($_POST['MODERATOR_APPROVE_USER']) : '';
 	$MODERATOR_EDIT_USER = isset($_POST['MODERATOR_EDIT_USER']) ? prepare_input($_POST['MODERATOR_EDIT_USER']) : '';
@@ -64,6 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$MODERATOR_DATAMAN_WARRANTTYPES = isset($_POST['MODERATOR_DATAMAN_WARRANTTYPES']) ? prepare_input($_POST['MODERATOR_DATAMAN_WARRANTTYPES']) : '';
 	$MODERATOR_DATAMAN_WEAPONS = isset($_POST['MODERATOR_DATAMAN_WEAPONS']) ? prepare_input($_POST['MODERATOR_DATAMAN_WEAPONS']) : '';
 	$MODERATOR_DATAMAN_IMPEXPRESET = isset($_POST['MODERATOR_DATAMAN_IMPEXPRESET']) ? prepare_input($_POST['MODERATOR_DATAMAN_IMPEXPRESET']) : '';
+
+	$_SESSION['GENERATE_GTAV_DATA'] = $GENERATE_GTAV_DATA;
 
 	$_SESSION['MODERATOR_APPROVE_USER'] = $MODERATOR_APPROVE_USER;
 
@@ -108,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	header('location: extra_settings.php');
 	exit;
 } else {
+	$GENERATE_GTAV_DATA = isset($_POST['GENERATE_GTAV_DATA']) ? prepare_input($_POST['GENERATE_GTAV_DATA']) : '';
 
 	$MODERATOR_APPROVE_USER = isset($_POST['MODERATOR_APPROVE_USER']) ? prepare_input($_POST['MODERATOR_APPROVE_USER']) : '';
 	$MODERATOR_EDIT_USER = isset($_POST['MODERATOR_EDIT_USER']) ? prepare_input($_POST['MODERATOR_EDIT_USER']) : '';
@@ -148,8 +152,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$MODERATOR_DATAMAN_WEAPONS = isset($_POST['MODERATOR_DATAMAN_WEAPONS']) ? prepare_input($_POST['MODERATOR_DATAMAN_WEAPONS']) : '';
 	$MODERATOR_DATAMAN_IMPEXPRESET = isset($_POST['MODERATOR_DATAMAN_IMPEXPRESET']) ? prepare_input($_POST['MODERATOR_DATAMAN_IMPEXPRESET']) : '';
 
+	$_SESSION['GENERATE_GTAV_DATA'] = $GENERATE_GTAV_DATA;
+
 	$_SESSION['MODERATOR_APPROVE_USER'] = $MODERATOR_APPROVE_USER;
-	
+
 	// Added 09/June/2022 by kevingorman1000
 
 	$_SESSION['MODERATOR_EDIT_USER'] = $MODERATOR_EDIT_USER;
@@ -251,12 +257,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 							<td nowrap height="10px" colspan="3"></td>
 						</tr>
 						<tr>
-							<td width="250px">&nbsp;<?php echo lang_key('MODERATOR_APPROVE_USER'); ?>&nbsp;</td>
-							<td>
-								<input type="radio" name="MODERATOR_APPROVE_USER" id="MODERATOR_APPROVE_USER" <?php echo ($MODERATOR_APPROVE_USER == 'true') ? 'checked' : '' ?> checked onfocus="textboxOnFocus('MODERATOR_APPROVE_USER_notes')" checked onblur="textboxOnBlur('MODERATOR_APPROVE_USER_notes')" value="true" />True
-								<input type="radio" name="MODERATOR_APPROVE_USER" id="MODERATOR_APPROVE_USER" <?php echo ($MODERATOR_APPROVE_USER == 'false') ? 'checked' : '' ?> onfocus="textboxOnFocus('MODERATOR_APPROVE_USER_notes')" onblur="textboxOnBlur('MODERATOR_APPROVE_USER_notes')" value="false" />False
+							<td width="250px">&nbsp;<?php echo lang_key('GENERATE_GTAV_DATA'); ?>&nbsp;</td>
+							<td><input type="radio" name="GENERATE_GTAV_DATA" id="GENERATE_GTAV_DATA" <?php echo ($GENERATE_GTAV_DATA == 'true') ? 'checked' : '' ?> checked onfocus="textboxOnFocus('GENERATE_GTAV_DATA_notes')" onblur="textboxOnBlur('GENERATE_GTAV_DATA_notes')" value="true" />True
+								<input type="radio" name="GENERATE_GTAV_DATA" id="GENERATE_GTAV_DATA" <?php echo ($GENERATE_GTAV_DATA == 'false') ? 'checked' : '' ?> onfocus="textboxOnFocus('GENERATE_GTAV_DATA_notes')" onblur="textboxOnBlur('GENERATE_GTAV_DATA_notes')" value="false" />False
 							</td>
+
 							<td rowspan="6" valign="top">
+
 								<div id="MODERATOR_APPROVE_USER_notes" class="notes_container">
 									<h4><?php echo lang_key('MODERATOR_APPROVE_USER'); ?></h4>
 									<p><?php echo lang_key('MODERATOR_APPROVE_USER_notes'); ?></p>
@@ -346,6 +353,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 								<img class="loading_img" src="images/ajax_loading.gif" alt="<?php echo lang_key('loading'); ?>..." />
 								<div id="notes_message" class="notes_container"></div>
+							</td>
+						</tr>
+						<tr>
+							<td>&nbsp;<?php echo lang_key('MODERATOR_APPROVE_USER'); ?></td>
+							<td><input type="radio" name="MODERATOR_APPROVE_USER" id="MODERATOR_APPROVE_USER" <?php echo ($MODERATOR_APPROVE_USER == 'true') ? 'checked' : '' ?> checked onfocus="textboxOnFocus('MODERATOR_APPROVE_USER_notes')" checked onblur="textboxOnBlur('MODERATOR_APPROVE_USER_notes')" value="true" />True
+								<input type="radio" name="MODERATOR_APPROVE_USER" id="MODERATOR_APPROVE_USER" <?php echo ($MODERATOR_APPROVE_USER == 'false') ? 'checked' : '' ?> onfocus="textboxOnFocus('MODERATOR_APPROVE_USER_notes')" onblur="textboxOnBlur('MODERATOR_APPROVE_USER_notes')" value="false" />False
 							</td>
 						</tr>
 						<tr>

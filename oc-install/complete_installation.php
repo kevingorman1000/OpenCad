@@ -1,9 +1,6 @@
 <?php
 
-if(!isset($_SESSION)) 
-    { 
-        session_start(); 
-    } ;
+session_start();
 
 require_once('include/shared.inc.php');
 require_once('include/settings.inc.php');
@@ -21,7 +18,7 @@ if ($passed_step >= 10) {
 	header('location: start.php');
 	exit;
 }
-
+EI_MODE == 'debug';
 if (EI_MODE == 'debug') error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 
 $completed = false;
@@ -124,6 +121,8 @@ if ($passed_step == 10) {
 	$MODERATOR_DATAMAN_WEAPONS			= isset($_SESSION['MODERATOR_DATAMAN_WEAPONS']) ? prepare_input($_SESSION['MODERATOR_DATAMAN_WEAPONS']) : '';
 	$MODERATOR_DATAMAN_IMPEXPRESET		= isset($_SESSION['MODERATOR_DATAMAN_IMPEXPRESET']) ? prepare_input($_SESSION['MODERATOR_DATAMAN_IMPEXPRESET']) : '';
 
+	$GENERATE_GTAV_DATA					= isset($_SESSION['GENERATE_GTAV_DATA']) ? prepare_input($_SESSION['GENERATE_GTAV_DATA']) : '';
+
 	$DEMO_MODE							= isset($_SESSION['DEMO_MODE']) ? prepare_input($_SESSION['DEMO_MODE']) : '';
 
 	$USE_GRAVATAR						= isset($_SESSION['USE_GRAVATAR']) ? prepare_input($_SESSION['USE_GRAVATAR']) : '';
@@ -133,8 +132,12 @@ if ($passed_step == 10) {
 	} else if ($install_type == 'un-install') {
 		$sql_dump_file = EI_SQL_DUMP_FILE_UN_INSTALL;
 	} else {
-		$sql_dump_file = EI_SQL_DUMP_FILE_CREATE;
-		$sql_dump_file_gta = EI_SQL_DUMP_FILE_CREATE_GTAV;
+		if ($GENERATE_GTAV_DATA == "true") {
+			$sql_dump_file = EI_SQL_DUMP_FILE_CREATE;
+			$sql_dump_file_gta = EI_SQL_DUMP_FILE_CREATE_GTAV;
+		} else {
+			$sql_dump_file = EI_SQL_DUMP_FILE_CREATE;
+		}
 	}
 
 	if (empty($database_host)) $error_mg[] = lang_key('alert_database_host_empty');
@@ -163,122 +166,127 @@ if ($passed_step == 10) {
 					$error_mg[] = $alert_min_version_db;
 				} else {
 					// read sql dump file
-					$sql_dump = file_get_contents($sql_dump_file);
-					$sql_dump_gta = file_get_contents($sql_dump_file_gta);
-					if ($sql_dump != '' && $sql_dump_gta != '') {
+					if ($GENERATE_GTAV_DATA == "true") {
+						$sql_dump = file_get_contents($sql_dump_file);
+						$sql_dump_gta = file_get_contents($sql_dump_file_gta);
+					} else {
+						$sql_dump = file_get_contents($sql_dump_file);
+					}
+					if ($sql_dump != '' || $sql_dump = '' && $sql_dump_gta != '') {
 						if (false == ($db_error = apphp_db_install($sql_dump_file))) {
 							if (EI_MODE != 'debug') $error_mg[] = lang_key('error_sql_executing');
-						} 
-						if (false == ($db_error = apphp_db_install($sql_dump_file_gta))) {
-							if (EI_MODE != 'debug') $error_mg[] = lang_key('error_sql_executing');
-						} 
-						else {
-							// write additional operations here, like setting up system preferences etc.
-							// ...
-							$completed = true;
-
-							session_destroy();
-
-							// now try to create file and write information
-							$config_file = file_get_contents(EI_CONFIG_FILE_TEMPLATE);
-							$config_file = str_replace('<DB_HOST>', $database_host, $config_file);
-							$config_file = str_replace('<DB_NAME>', $database_name, $config_file);
-							$config_file = str_replace('<DB_USER>', $database_username, $config_file);
-							$config_file = str_replace('<DB_PASSWORD>', $database_password, $config_file);
-							$config_file = str_replace('<DB_PREFIX>', $database_prefix, $config_file);
-
-							$config_file = str_replace('<DEFAULT_LANGUAGE>', $DEFAULT_LANUGAGE, $config_file);
-							$config_file = str_replace('<DEFAULT_LANUGAGE_DIRECTION>', $DEFAULT_LANUGAGE_DIRECTION, $config_file);
-
-							$config_file = str_replace('<COMMUNITY_NAME>', $COMMUNITY_NAME, $config_file);
-							$config_file = str_replace('<BASE_URL>', $BASE_URL, $config_file);
-							$config_file = str_replace('<API_SECURITY>', $API_SECURITY, $config_file);
-
-							$config_file = str_replace('<CAD_FROM_EMAIL>', $CAD_FROM_EMAIL, $config_file);
-							$config_file = str_replace('<CAD_TO_EMAIL>', $CAD_TO_EMAIL, $config_file);
-
-							$config_file = str_replace('<AUTH_KEY>', $AUTH_KEY, $config_file);
-							$config_file = str_replace('<SECURE_AUTH_KEY>', $SECURE_AUTH_KEY, $config_file);
-							$config_file = str_replace('<LOGGED_IN_KEY>', $LOGGED_IN_KEY, $config_file);
-							$config_file = str_replace('<NONCE_KEY>', $NONCE_KEY, $config_file);
-							$config_file = str_replace('<AUTH_SALT>', $AUTH_SALT, $config_file);
-							$config_file = str_replace('<SECURE_AUTH_SALT>', $SECURE_AUTH_SALT, $config_file);
-							$config_file = str_replace('<LOGGED_IN_SALT>', $LOGGED_IN_SALT, $config_file);
-							$config_file = str_replace('<NONCE_SALT>', $NONCE_SALT, $config_file);
-
-							$config_file = str_replace('<POLICE_NCIC>', $POLICE_NCIC, $config_file);
-							$config_file = str_replace('<POLICE_CALL_SELFASSIGN>', $POLICE_CALL_SELFASSIGN, $config_file);
-
-							$config_file = str_replace('<FIRE_PANIC>', $FIRE_PANIC, $config_file);
-							$config_file = str_replace('<FIRE_BOLO>', $FIRE_BOLO, $config_file);
-							$config_file = str_replace('<FIRE_NCIC_NAME>', $FIRE_NCIC_NAME, $config_file);
-							$config_file = str_replace('<FIRE_NCIC_PLATE>', $FIRE_NCIC_PLATE, $config_file);
-							$config_file = str_replace('<FIRE_CALL_SELFASSIGN>', $FIRE_CALL_SELFASSIGN, $config_file);
-
-							$config_file = str_replace('<EMS_PANIC>', $EMS_PANIC, $config_file);
-							$config_file = str_replace('<EMS_BOLO>', $EMS_BOLO, $config_file);
-							$config_file = str_replace('<EMS_NCIC_NAME>', $EMS_NCIC_NAME, $config_file);
-							$config_file = str_replace('<EMS_NCIC_PLATE>', $EMS_NCIC_PLATE, $config_file);
-							$config_file = str_replace('<EMS_CALL_SELFASSIGN>', $EMS_NCIC_PLATE, $config_file);
-
-							$config_file = str_replace('<ROADSIDE_PANIC>', $ROADSIDE_PANIC, $config_file);
-							$config_file = str_replace('<ROADSIDE_BOLO>', $ROADSIDE_BOLO, $config_file);
-							$config_file = str_replace('<ROADSIDE_NCIC_NAME>', $ROADSIDE_NCIC_NAME, $config_file);
-							$config_file = str_replace('<ROADSIDE_NCIC_PLATE>', $ROADSIDE_NCIC_PLATE, $config_file);
-							$config_file = str_replace('<ROADSIDE_CALL_SELFASSIGN>', $ROADSIDE_CALL_SELFASSIGN, $config_file);
-
-							$config_file = str_replace('<CIV_WARRANT>', $CIV_WARRANT, $config_file);
-							$config_file = str_replace('<CIV_REG>', $CIV_REG, $config_file);
-							$config_file = str_replace('<CIV_LIMIT_MAX_IDENTITIES>', $CIV_LIMIT_MAX_IDENTITIES, $config_file);
-							$config_file = str_replace('<CIV_LIMIT_MAX_VEHICLES>', $CIV_LIMIT_MAX_VEHICLES, $config_file);
-							$config_file = str_replace('<CIV_LIMIT_MAX_WEAPONS>', $CIV_LIMIT_MAX_WEAPONS, $config_file);
-
-							$config_file = str_replace('<MODERATOR_APPROVE_USER>', $MODERATOR_APPROVE_USER, $config_file);
-							$config_file = str_replace('<MODERATOR_EDIT_USER>', $MODERATOR_EDIT_USER, $config_file);
-							$config_file = str_replace('<MODERATOR_SUSPEND_WITH_REASON>', $MODERATOR_SUSPEND_WITH_REASON, $config_file);
-							$config_file = str_replace('<MODERATOR_SUSPEND_WITHOUT_REASON>', $MODERATOR_SUSPEND_WITHOUT_REASON, $config_file);
-							$config_file = str_replace('<MODERATOR_REACTIVATE_USER>', $MODERATOR_REACTIVATE_USER, $config_file);
-							$config_file = str_replace('<MODERATOR_REMOVE_GROUP>', $MODERATOR_REMOVE_GROUP, $config_file);
-							$config_file = str_replace('<MODERATOR_DELETE_USER>', $MODERATOR_DELETE_USER, $config_file);
-							$config_file = str_replace('<MODERATOR_NCIC_EDITOR>', $MODERATOR_NCIC_EDITOR, $config_file);
-
-							$config_file = str_replace('<MODERATOR_DATA_MANAGER>', $MODERATOR_DATA_MANAGER, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_CITATIONTYPES>', $MODERATOR_DATAMAN_CITATIONTYPES, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_DEPARTMENTS>', $MODERATOR_DATAMAN_DEPARTMENTS, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_INCIDENTTYPES>', $MODERATOR_DATAMAN_INCIDENTTYPES, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_RADIOCODES>', $MODERATOR_DATAMAN_RADIOCODES, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_STREETS>', $MODERATOR_DATAMAN_STREETS, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_VEHICLES>', $MODERATOR_DATAMAN_VEHICLES, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_WARNINGTYPES>', $MODERATOR_DATAMAN_WARNINGTYPES, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_WARRANTTYPES>', $MODERATOR_DATAMAN_WARRANTTYPES, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_WEAPONS>', $MODERATOR_DATAMAN_WEAPONS, $config_file);
-							$config_file = str_replace('<MODERATOR_DATAMAN_IMPEXPRESET>', $MODERATOR_DATAMAN_IMPEXPRESET, $config_file);
-							//Added 09/June/2022 by Kevingorman1000
-							$config_file = str_replace('<MODERATOR_EDIT_VEHICLE>', $MODERATOR_EDIT_VEHICLE, $config_file);
-							$config_file = str_replace('<MODERATOR_DELETE_VEHICLE>', $MODERATOR_DELETE_VEHICLE, $config_file);
-							$config_file = str_replace('<MODERATOR_EDIT_WARNINGTYPE>', $MODERATOR_EDIT_WARNINGTYPE, $config_file);
-							$config_file = str_replace('<MODERATOR_DELETE_WARNINGTYPE>', $MODERATOR_DELETE_WARNINGTYPE, $config_file);
-							$config_file = str_replace('<MODERATOR_EDIT_INCIDENTTYPE>', $MODERATOR_EDIT_INCIDENTTYPE, $config_file);
-							$config_file = str_replace('<MODERATOR_DELETE_INCIDENTTPYE>', $MODERATOR_DELETE_INCIDENTTPYE, $config_file);
-							$config_file = str_replace('<MODERATOR_EDIT_STREET>', $MODERATOR_EDIT_STREET, $config_file);
-							$config_file = str_replace('<MODERATOR_DELETE_STREET>', $MODERATOR_DELETE_STREET, $config_file);
-							$config_file = str_replace('<MODERATOR_EDIT_WARRANTTYPE>', $MODERATOR_EDIT_WARRANTTYPE, $config_file);
-							$config_file = str_replace('<MODERATOR_DELETE_WARRANTTYPE>', $MODERATOR_DELETE_WARRANTTYPE, $config_file);
-							$config_file = str_replace('<MODERATOR_EDIT_WEAPON>', $MODERATOR_EDIT_WEAPON, $config_file);
-							$config_file = str_replace('<MODERATOR_DELETE_WEAPON>', $MODERATOR_DELETE_WEAPON, $config_file);
-
-							$config_file = str_replace('<DEMO_MODE>', $DEMO_MODE, $config_file);
-							$config_file = str_replace('<USE_GRAVATAR>', $USE_GRAVATAR, $config_file);
-							// Seems to work fine without chmod line.
-							//chmod(EI_CONFIG_FILE_PATH, 0600);
-							$f = fopen(EI_CONFIG_FILE_PATH, 'w+');
-							if (!fwrite($f, $config_file) > 0) {
-								$error_mg[] = str_replace('_CONFIG_FILE_PATH_', EI_CONFIG_FILE_PATH, lang_key('error_can_not_open_config_file'));
-							}
-							fclose($f);
-							if ($install_type == 'un-install') unlink(EI_CONFIG_FILE_PATH);
-							///@chmod('../'.EI_CONFIG_FILE_DIRECTORY, 0644);									
 						}
+						if ($GENERATE_GTAV_DATA == "true") {
+							if (false == ($db_error = apphp_db_install($sql_dump_file_gta))) {
+								if (EI_MODE != 'debug') $error_mg[] = lang_key('error_sql_executing');
+							}
+						}
+						// write additional operations here, like setting up system preferences etc.
+						// ...
+						
+						$completed = true;
+						session_destroy();
+
+						// now try to create file and write information
+						$config_file = file_get_contents(EI_CONFIG_FILE_TEMPLATE);
+						$config_file = str_replace('<DB_HOST>', $database_host, $config_file);
+						$config_file = str_replace('<DB_NAME>', $database_name, $config_file);
+						$config_file = str_replace('<DB_USER>', $database_username, $config_file);
+						$config_file = str_replace('<DB_PASSWORD>', $database_password, $config_file);
+						$config_file = str_replace('<DB_PREFIX>', $database_prefix, $config_file);
+
+						$config_file = str_replace('<DEFAULT_LANGUAGE>', $DEFAULT_LANUGAGE, $config_file);
+						$config_file = str_replace('<DEFAULT_LANUGAGE_DIRECTION>', $DEFAULT_LANUGAGE_DIRECTION, $config_file);
+
+						$config_file = str_replace('<COMMUNITY_NAME>', $COMMUNITY_NAME, $config_file);
+						$config_file = str_replace('<BASE_URL>', $BASE_URL, $config_file);
+						$config_file = str_replace('<API_SECURITY>', $API_SECURITY, $config_file);
+
+						$config_file = str_replace('<CAD_FROM_EMAIL>', $CAD_FROM_EMAIL, $config_file);
+						$config_file = str_replace('<CAD_TO_EMAIL>', $CAD_TO_EMAIL, $config_file);
+
+						$config_file = str_replace('<AUTH_KEY>', $AUTH_KEY, $config_file);
+						$config_file = str_replace('<SECURE_AUTH_KEY>', $SECURE_AUTH_KEY, $config_file);
+						$config_file = str_replace('<LOGGED_IN_KEY>', $LOGGED_IN_KEY, $config_file);
+						$config_file = str_replace('<NONCE_KEY>', $NONCE_KEY, $config_file);
+						$config_file = str_replace('<AUTH_SALT>', $AUTH_SALT, $config_file);
+						$config_file = str_replace('<SECURE_AUTH_SALT>', $SECURE_AUTH_SALT, $config_file);
+						$config_file = str_replace('<LOGGED_IN_SALT>', $LOGGED_IN_SALT, $config_file);
+						$config_file = str_replace('<NONCE_SALT>', $NONCE_SALT, $config_file);
+
+						$config_file = str_replace('<POLICE_NCIC>', $POLICE_NCIC, $config_file);
+						$config_file = str_replace('<POLICE_CALL_SELFASSIGN>', $POLICE_CALL_SELFASSIGN, $config_file);
+
+						$config_file = str_replace('<FIRE_PANIC>', $FIRE_PANIC, $config_file);
+						$config_file = str_replace('<FIRE_BOLO>', $FIRE_BOLO, $config_file);
+						$config_file = str_replace('<FIRE_NCIC_NAME>', $FIRE_NCIC_NAME, $config_file);
+						$config_file = str_replace('<FIRE_NCIC_PLATE>', $FIRE_NCIC_PLATE, $config_file);
+						$config_file = str_replace('<FIRE_CALL_SELFASSIGN>', $FIRE_CALL_SELFASSIGN, $config_file);
+
+						$config_file = str_replace('<EMS_PANIC>', $EMS_PANIC, $config_file);
+						$config_file = str_replace('<EMS_BOLO>', $EMS_BOLO, $config_file);
+						$config_file = str_replace('<EMS_NCIC_NAME>', $EMS_NCIC_NAME, $config_file);
+						$config_file = str_replace('<EMS_NCIC_PLATE>', $EMS_NCIC_PLATE, $config_file);
+						$config_file = str_replace('<EMS_CALL_SELFASSIGN>', $EMS_NCIC_PLATE, $config_file);
+
+						$config_file = str_replace('<ROADSIDE_PANIC>', $ROADSIDE_PANIC, $config_file);
+						$config_file = str_replace('<ROADSIDE_BOLO>', $ROADSIDE_BOLO, $config_file);
+						$config_file = str_replace('<ROADSIDE_NCIC_NAME>', $ROADSIDE_NCIC_NAME, $config_file);
+						$config_file = str_replace('<ROADSIDE_NCIC_PLATE>', $ROADSIDE_NCIC_PLATE, $config_file);
+						$config_file = str_replace('<ROADSIDE_CALL_SELFASSIGN>', $ROADSIDE_CALL_SELFASSIGN, $config_file);
+
+						$config_file = str_replace('<CIV_WARRANT>', $CIV_WARRANT, $config_file);
+						$config_file = str_replace('<CIV_REG>', $CIV_REG, $config_file);
+						$config_file = str_replace('<CIV_LIMIT_MAX_IDENTITIES>', $CIV_LIMIT_MAX_IDENTITIES, $config_file);
+						$config_file = str_replace('<CIV_LIMIT_MAX_VEHICLES>', $CIV_LIMIT_MAX_VEHICLES, $config_file);
+						$config_file = str_replace('<CIV_LIMIT_MAX_WEAPONS>', $CIV_LIMIT_MAX_WEAPONS, $config_file);
+
+						$config_file = str_replace('<MODERATOR_APPROVE_USER>', $MODERATOR_APPROVE_USER, $config_file);
+						$config_file = str_replace('<MODERATOR_EDIT_USER>', $MODERATOR_EDIT_USER, $config_file);
+						$config_file = str_replace('<MODERATOR_SUSPEND_WITH_REASON>', $MODERATOR_SUSPEND_WITH_REASON, $config_file);
+						$config_file = str_replace('<MODERATOR_SUSPEND_WITHOUT_REASON>', $MODERATOR_SUSPEND_WITHOUT_REASON, $config_file);
+						$config_file = str_replace('<MODERATOR_REACTIVATE_USER>', $MODERATOR_REACTIVATE_USER, $config_file);
+						$config_file = str_replace('<MODERATOR_REMOVE_GROUP>', $MODERATOR_REMOVE_GROUP, $config_file);
+						$config_file = str_replace('<MODERATOR_DELETE_USER>', $MODERATOR_DELETE_USER, $config_file);
+						$config_file = str_replace('<MODERATOR_NCIC_EDITOR>', $MODERATOR_NCIC_EDITOR, $config_file);
+
+						$config_file = str_replace('<MODERATOR_DATA_MANAGER>', $MODERATOR_DATA_MANAGER, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_CITATIONTYPES>', $MODERATOR_DATAMAN_CITATIONTYPES, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_DEPARTMENTS>', $MODERATOR_DATAMAN_DEPARTMENTS, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_INCIDENTTYPES>', $MODERATOR_DATAMAN_INCIDENTTYPES, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_RADIOCODES>', $MODERATOR_DATAMAN_RADIOCODES, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_STREETS>', $MODERATOR_DATAMAN_STREETS, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_VEHICLES>', $MODERATOR_DATAMAN_VEHICLES, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_WARNINGTYPES>', $MODERATOR_DATAMAN_WARNINGTYPES, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_WARRANTTYPES>', $MODERATOR_DATAMAN_WARRANTTYPES, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_WEAPONS>', $MODERATOR_DATAMAN_WEAPONS, $config_file);
+						$config_file = str_replace('<MODERATOR_DATAMAN_IMPEXPRESET>', $MODERATOR_DATAMAN_IMPEXPRESET, $config_file);
+						//Added 09/June/2022 by Kevingorman1000
+						$config_file = str_replace('<MODERATOR_EDIT_VEHICLE>', $MODERATOR_EDIT_VEHICLE, $config_file);
+						$config_file = str_replace('<MODERATOR_DELETE_VEHICLE>', $MODERATOR_DELETE_VEHICLE, $config_file);
+						$config_file = str_replace('<MODERATOR_EDIT_WARNINGTYPE>', $MODERATOR_EDIT_WARNINGTYPE, $config_file);
+						$config_file = str_replace('<MODERATOR_DELETE_WARNINGTYPE>', $MODERATOR_DELETE_WARNINGTYPE, $config_file);
+						$config_file = str_replace('<MODERATOR_EDIT_INCIDENTTYPE>', $MODERATOR_EDIT_INCIDENTTYPE, $config_file);
+						$config_file = str_replace('<MODERATOR_DELETE_INCIDENTTPYE>', $MODERATOR_DELETE_INCIDENTTPYE, $config_file);
+						$config_file = str_replace('<MODERATOR_EDIT_STREET>', $MODERATOR_EDIT_STREET, $config_file);
+						$config_file = str_replace('<MODERATOR_DELETE_STREET>', $MODERATOR_DELETE_STREET, $config_file);
+						$config_file = str_replace('<MODERATOR_EDIT_WARRANTTYPE>', $MODERATOR_EDIT_WARRANTTYPE, $config_file);
+						$config_file = str_replace('<MODERATOR_DELETE_WARRANTTYPE>', $MODERATOR_DELETE_WARRANTTYPE, $config_file);
+						$config_file = str_replace('<MODERATOR_EDIT_WEAPON>', $MODERATOR_EDIT_WEAPON, $config_file);
+						$config_file = str_replace('<MODERATOR_DELETE_WEAPON>', $MODERATOR_DELETE_WEAPON, $config_file);
+
+						$config_file = str_replace('<DEMO_MODE>', $DEMO_MODE, $config_file);
+						$config_file = str_replace('<USE_GRAVATAR>', $USE_GRAVATAR, $config_file);
+						// Seems to work fine without chmod line.
+						//chmod(EI_CONFIG_FILE_PATH, 0600);
+						$f = fopen(EI_CONFIG_FILE_PATH, 'w+');
+						if (!fwrite($f, $config_file) > 0) {
+							$error_mg[] = str_replace('_CONFIG_FILE_PATH_', EI_CONFIG_FILE_PATH, lang_key('error_can_not_open_config_file'));
+						}
+						fclose($f);
+						if ($install_type == 'un-install') unlink(EI_CONFIG_FILE_PATH);
+						///@chmod('../'.EI_CONFIG_FILE_DIRECTORY, 0644);									
+
 					} else {
 						$error_mg[] = str_replace('_SQL_DUMP_FILE_', $sql_dump_file, lang_key('error_can_not_read_file'));
 					}

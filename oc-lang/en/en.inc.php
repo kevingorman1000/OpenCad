@@ -20,6 +20,8 @@ $arrLang['alert_remove_files'] = "For security reasons, please remove the <b>oc-
 $arrLang['alert_wrong_parameter_passed'] = "Wrong parameter passed! Please back to the previous step and try again.";
 
 $arrLang['regenerate_keys'] = "Regenerate Keys";
+$arrLang['GENERATE_GTAV_DATA'] = "Generate GTAV Data";
+$arrLang['GENERATE_GTAV_DATA_notes'] = "Adds data for GTAV";
 
 $arrLang['error_asp_tags'] = "This installation requires <b>ASP tags</b> settings turned ON.";
 $arrLang['error_can_not_open_config_file'] = "Database was successfully created! Cannot open configuration file _CONFIG_FILE_PATH_ to save info.";
