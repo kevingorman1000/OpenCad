@@ -14,7 +14,10 @@
      * File origin: ATVG-CAD v1.3.0.0 by ATVG-Studios
     **/
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $error_title = "We are sorry! It looks as a error had occurred.";
     if(!empty($_SESSION['error_title']))
     {

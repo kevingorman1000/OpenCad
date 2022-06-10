@@ -18,7 +18,10 @@ if(ENABLE_API_SECURITY === true)
 {
     if(session_id() == '' || !isset($_SESSION)) {
         // session isn't started
-        session_start();
+        if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     }
 
     // Handle Authentication

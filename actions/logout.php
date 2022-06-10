@@ -45,7 +45,10 @@ function logoutResponder()
     $pdo = null;
 }
 
-session_start();
+if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 session_unset();
 session_destroy();
 if(ENABLE_API_SECURITY === true)

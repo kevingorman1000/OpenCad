@@ -1,5 +1,8 @@
 <?php
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['error_title'] = "Service Unavailable";
     $_SESSION['error'] = "This Service is currently Unavailable! Please come back in a view minutes, or contact your site administrator.";
     $_SESSION['error_blob'] = "Tip me over and pour me out.";

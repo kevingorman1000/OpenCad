@@ -12,7 +12,10 @@ the Free Software Foundation, either version 3 of the License, or
 This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
 **/
 
-session_start();
+if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 include_once(__DIR__."/oc-config.php");
 include_once(__DIR__."/oc-functions.php");
 include(__DIR__."/actions/generalActions.php");

@@ -16,7 +16,10 @@ require("./oc-config.php");
 require("./actions/generalActions.php");
 include("./actions/profileActions.php");
 
-		session_start();
+		if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 		if (empty($_SESSION['logged_in']))
 		{
 				header('Location: ./index.php');

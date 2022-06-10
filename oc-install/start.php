@@ -13,7 +13,10 @@
 ##                                                                             #
 ################################################################################
 
-session_start();
+if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 
 require_once('include/shared.inc.php');
 require_once('include/settings.inc.php');

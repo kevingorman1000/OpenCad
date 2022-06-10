@@ -592,7 +592,10 @@ function cadGetPersonBOLOS()
 
 function create_citation()
 {
-	session_start();
+	if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 	$userId = htmlspecialchars($_POST['civilian_names']);
 	$citation_name_1 = htmlspecialchars($_POST['citation_name_1']);
 	$citation_fine_1 = htmlspecialchars($_POST['citation_fine_1']);
@@ -679,7 +682,10 @@ function create_citation()
 
 function create_warning()
 {
-	session_start();
+	if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 	$userId = htmlspecialchars($_POST['civilian_names']);
 	$warning_name_1 = htmlspecialchars($_POST['warning_name_1']);
 	$warning_name_2 = htmlspecialchars($_POST['warning_name_2']);
@@ -1526,7 +1532,10 @@ function edit_vehiclebolo()
 
 function create_arrest()
 {
-	session_start();
+	if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 	$userId = htmlspecialchars($_POST['civilian_names']);
 	$arrest_reason_1 = htmlspecialchars($_POST['arrest_reason_1']);
 	$arrest_fine_1 = htmlspecialchars($_POST['arrest_fine_1']);

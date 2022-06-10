@@ -32,7 +32,10 @@ if (isset($_POST['changePassword']))
 
 function updateProfile()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $id = $_SESSION['id'];
     $name = htmlspecialchars($_POST['name']);
     $email = htmlspecialchars($_POST['email']);
@@ -104,7 +107,10 @@ function getMyRank()
 
 function changePassword()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
 

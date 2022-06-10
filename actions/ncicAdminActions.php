@@ -240,7 +240,10 @@ function delete_weapon()
 
     $civ_data->delete_weaponAdmin($weaid);
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['weaponMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian weapon</span></div>';
     header("Location: ".BASE_URL."/oc-admin/ncicAdmin.php");
 }
@@ -253,7 +256,10 @@ function delete_citation()
 
     $civ_data->delete_citationAdmin($cid);
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['citationMessage'] = '<div class="alert alert-success"><span>Successfully removed citation</span></div>';
     header("Location: ".BASE_URL."/oc-admin/ncicAdmin.php");
 }
@@ -266,7 +272,10 @@ function delete_arrest()
 
     $civ_data->delete_arrestAdmin($aid);
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['arrestMessage'] = '<div class="alert alert-success"><span>Successfully removed arrest</span></div>';
     header("Location: ".BASE_URL."/oc-admin/ncicAdmin.php");
 }
@@ -279,7 +288,10 @@ function delete_warning()
 
     $civ_data->delete_warningAdmin($wgid);
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['warningMessage'] = '<div class="alert alert-success"><span>Successfully removed warning</span></div>';
     header("Location: ".BASE_URL."/oc-admin/ncicAdmin.php");
 }
@@ -292,7 +304,10 @@ function delete_warrant()
 
     $civ_data->delete_warrantAdmin($wid);
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['warrantMessage'] = '<div class="alert alert-success"><span>Successfully removed warrant</span></div>';
     header("Location: ".BASE_URL."/oc-admin/ncicAdmin.php");
 }
@@ -547,7 +562,10 @@ function delete_name()
 
     $civ_data->delete_name($uid);
     
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['nameMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian name</span></div>';
     header("Location: ".BASE_URL."/oc-admin/ncicAdmin.php#name_panel");
 }
@@ -560,14 +578,20 @@ function delete_plate()
 
     $civ_data->delete_name($vehid);
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian plate</span></div>';
     header("Location: ".BASE_URL."/oc-admin/ncicAdmin.php#plate_panel");
 }
 
 function edit_name()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 
     $fullName = htmlspecialchars($_POST['civNameReq']);
     $firstName = explode(" ", $fullName) [0];
@@ -629,7 +653,10 @@ function edit_plate()
 {
     $civ_data = new Civilian\CivilianManager();
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     
     $plate = htmlspecialchars($_POST['veh_plate']);
     
@@ -661,7 +688,10 @@ function edit_plate()
 
     $civ_data->edit_name($userId, $veh_plate, $veh_make, $veh_model, $veh_pcolor, $veh_scolor, $veh_insurance, $flags, $veh_reg_state, $notes, $plate_id);
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully Updated plate to the database</span></div>';
 
     header("Location:".BASE_URL."/oc-admin/ncicAdmin.php#plate_panel");

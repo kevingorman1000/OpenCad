@@ -19,7 +19,10 @@ $users_data = new \Users\UserService();
 
 if(!empty($_POST))
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $email = htmlspecialchars($_POST['email']);
     $password = htmlspecialchars($_POST['password']);
 
@@ -33,7 +36,10 @@ if(!empty($_POST))
     }
     else
     {
-        session_start();
+        if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
         $_SESSION['loginMessageDanger'] = 'Invalid credentials';
         header("Location:".BASE_URL."/index.php");
         exit();
@@ -46,7 +52,10 @@ if(!empty($_POST))
     */
     if ($result['approved'] == "0")
     {
-        session_start();
+        if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
         $_SESSION['loginMessageDanger'] = 'Your account hasn\'t been approved yet. Please wait for an administrator to approve your access request.';
         header("Location:".BASE_URL."/index.php");
         exit();
@@ -54,7 +63,10 @@ if(!empty($_POST))
     else if ($result['approved'] == "2")
     {
         /* TODO: Show reason why user is suspended */
-        session_start();
+        if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
         $_SESSION['loginMessageDanger'] = "Your account has been suspended by an administrator for: $suspended_reason";
         header("Location:".BASE_URL."/index.php");
         exit();

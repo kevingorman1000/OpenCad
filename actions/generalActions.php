@@ -71,7 +71,10 @@ if (isset($_GET['getCalls'])){
 
     if($myRank == 2){
         getApiKey(true);
-        session_start();
+        if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
         session_unset();
         session_destroy();
         if(ENABLE_API_SECURITY === true)
@@ -89,7 +92,10 @@ function quickStatus()
 {
     $event = htmlspecialchars($_POST['event']);
     $callId = htmlspecialchars($_POST['callId']);
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $callsign = $_SESSION['callsign'];
 
     switch($event)
@@ -129,7 +135,10 @@ function quickStatus()
 
 function getMyCall()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     //First, check to see if they're on a call
     $uid = $_SESSION['id'];
 

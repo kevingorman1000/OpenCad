@@ -13,7 +13,10 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
 **/
 	if(session_id() == '' || !isset($_SESSION)) {
     // session isn't started
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     }
     include_once(__DIR__."/oc-config.php");
     include_once(__DIR__."/oc-functions.php");

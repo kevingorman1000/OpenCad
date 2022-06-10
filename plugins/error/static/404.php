@@ -1,5 +1,8 @@
 <?php
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['error_title'] = "Unknown Document!";
     $_SESSION['error'] = "The page you are trying to access, does not exist.";
 

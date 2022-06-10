@@ -32,7 +32,10 @@ function register()
     }
     if($_POST['password'] !== $_POST['password1'])
     {
-        session_start();
+        if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
         $_SESSION['register_error'] = "Passwords do not match";
         sleep(1);
         header("Location:".BASE_URL."/index.php#signup");
@@ -67,7 +70,10 @@ function register()
     $num_rows = $result->rowCount();
     if ($num_rows>0)
     {
-        session_start();
+        if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
         $_SESSION['register_error'] = "Email already exists";
         sleep(1);
         header("Location:".BASE_URL."/index.php#signup");
@@ -101,7 +107,10 @@ function register()
     }
 
     $pdo = null;
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['register_success'] = "Successfully requested access. Please wait for an administrator to approve your request.";
     sleep(1);
     header("Location:".BASE_URL."/index.php#signup");
@@ -114,7 +123,10 @@ function civreg()
     $identifier = htmlspecialchars($_POST['identifier']);
     if($_POST['password'] !== $_POST['password1'])
     {
-        session_start();
+        if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
         $_SESSION['register_error'] = "Passwords do not match";
         sleep(1);
         header("Location:".BASE_URL."/index.php#signup");
@@ -149,7 +161,10 @@ function civreg()
 
     if ($num_rows>0)
     {
-        session_start();
+        if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
         $_SESSION['register_error'] = "Email already exists";
         sleep(1);
         header("Location:".BASE_URL."/index.php#civreg");
@@ -178,7 +193,10 @@ function civreg()
     }
 
     $pdo = null;
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['register_success'] = "Successfully registered. You may now log-in.";
     sleep(1);
     header("Location:".BASE_URL."/index.php#civreg");

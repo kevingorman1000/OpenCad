@@ -21,7 +21,10 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
  * @author     Shane G
  */
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 
     // HACK
     $civName = "";

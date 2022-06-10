@@ -276,7 +276,10 @@ function delete_name()
     }
     $pdo = null;
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['nameMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian name</span></div>';
     header("Location: ".BASE_URL."/civilian.php");
 }
@@ -306,14 +309,20 @@ function delete_plate()
     }
     $pdo = null;
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian plate</span></div>';
     header("Location: ".BASE_URL."/civilian.php");
 }
 
 function create_name()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 
     $fullName = htmlspecialchars($_POST['civNameReq']);
     $firstName = explode(" ", $fullName) [0];
@@ -405,7 +414,10 @@ function create_name()
 
 function create_plate()
 {
-	session_start();
+	if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 
 	$plate = htmlspecialchars($_POST['veh_plate']);
 
@@ -455,7 +467,10 @@ function create_plate()
     }
     $pdo = null;
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully added plate to the database</span></div>';
 
     header("Location:".BASE_URL."/civilian.php#plate_panel");
@@ -514,7 +529,10 @@ function create911Call()
     }
     $pdo = null;
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['good911'] = '<div class="alert alert-success"><span>Successfully created 911 call</span></div>';
 
     sleep(1);
@@ -524,7 +542,10 @@ function create911Call()
 
 function edit_name()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 
     $fullName = htmlspecialchars($_POST['civNameReq']);
     $firstName = explode(" ", $fullName) [0];
@@ -613,7 +634,10 @@ function edit_name()
 
 function edit_plate()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 
     $plate = htmlspecialchars($_POST['veh_plate']);
 
@@ -664,7 +688,10 @@ function edit_plate()
     }
     $pdo = null;
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully Updated plate to the database</span></div>';
 
     header("Location:".BASE_URL."/civilian.php#plate_panel");
@@ -757,7 +784,10 @@ function create_warrant()
     }
     $pdo = null;
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['warrantMessage'] = '<div class="alert alert-success"><span>Successfully created warrant</span></div>';
 
     header("Location:".BASE_URL."/civilian.php");
@@ -891,14 +921,20 @@ function delete_warrant()
     }
     $pdo = null;
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['warrantMessage'] = '<div class="alert alert-success"><span>Successfully removed warrant</span></div>';
     header("Location: ".BASE_URL."/civilian.php");
 }
 
 function create_weapon()
 {
-	session_start();
+	if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 
     $weapon = htmlspecialchars($_POST['weapon_all']);
     $wea_type = explode("&#8212;", $weapon) [0];
@@ -933,7 +969,10 @@ function create_weapon()
     }
     $pdo = null;
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['weaponMessage'] = '<div class="alert alert-success"><span>Successfully added a weapon to the database</span></div>';
 
     header("Location:".BASE_URL."/civilian.php#weapon_panel");
@@ -1037,14 +1076,20 @@ function delete_weapon()
     }
     $pdo = null;
 
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $_SESSION['weaponMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian weapon</span></div>';
     header("Location: ".BASE_URL."/civilian.php");
 }
 
 function getNumberOfProfiles()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $id = $_SESSION['id'];
 
     try{
@@ -1076,7 +1121,10 @@ function getNumberOfProfiles()
 
 function getNumberOfVehicles()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $id = $_SESSION['id'];
 
     try{
@@ -1108,7 +1156,10 @@ function getNumberOfVehicles()
 
 function getNumberOfWeapons()
 {
-    session_start();
+    if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
     $id = $_SESSION['id'];
 
     try{

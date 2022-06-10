@@ -12,7 +12,10 @@ This program is free software: you can redistribute it and/or modify
 This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
 **/
 
-session_start();
+if(!isset($_SESSION)) 
+    { 
+        session_start(); 
+    } ;
 include("./oc-config.php");
 require("./actions/generalActions.php");
 
