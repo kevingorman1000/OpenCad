@@ -1,4 +1,5 @@
 <?php
+
 /**
 Open source CAD system for RolePlaying Communities.
 Copyright (C) 2017 Shane Gill
@@ -9,7 +10,7 @@ This program is free software: you can redistribute it and/or modify
     (at your option) any later version.
 
 This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
-**/
+ **/
 /*
     This file handles all actions for admin.php script
 */
@@ -27,64 +28,53 @@ require_once(__DIR__ . "/../includes/autoloader.inc.php");
  * Running multiple functions at the same time doesnt seem to
  * be a needed feature.
  */
-if (isset($_GET['getCalls'])){
+if (isset($_GET['getCalls'])) {
     getActiveCalls();
-}else if (isset($_GET['getMyCall'])){
+} else if (isset($_GET['getMyCall'])) {
     getMyCall();
-}else if (isset($_GET['getCallDetails'])){
+} else if (isset($_GET['getCallDetails'])) {
     getCallDetails();
-}else if (isset($_GET['getAvailableUnits'])){
+} else if (isset($_GET['getAvailableUnits'])) {
     getAvailableUnits();
-}else if (isset($_GET['getUnAvailableUnits'])){
+} else if (isset($_GET['getUnAvailableUnits'])) {
     getUnAvailableUnits();
-}else if (isset($_POST['changeStatus'])){
+} else if (isset($_POST['changeStatus'])) {
     changeStatus();
-}else if (isset($_GET['getActiveUnits']))
-{
+} else if (isset($_GET['getActiveUnits'])) {
     getActiveUnits();
-}else if (isset($_GET['getActiveUnitsModal']))
-{
+} else if (isset($_GET['getActiveUnitsModal'])) {
     getActiveUnitsModal();
-}else if (isset($_POST['logoutUser']))
-{
+} else if (isset($_POST['logoutUser'])) {
     logoutUser();
-}else if (isset($_POST['setTone']))
-{
+} else if (isset($_POST['setTone'])) {
     setTone();
-}else if (isset($_GET['checkTones']))
-{
+} else if (isset($_GET['checkTones'])) {
     checkTones();
-}else if (isset($_GET['getDispatchers']))
-{
+} else if (isset($_GET['getDispatchers'])) {
     getDispatchers();
-}else if (isset($_GET['getDispatchersMDT']))
-{
+} else if (isset($_GET['getDispatchersMDT'])) {
     getDispatchersMDT();
-}else if (isset($_POST['quickStatus']))
-{
+} else if (isset($_POST['quickStatus'])) {
     quickStatus();
-}else if (isset($_GET['getAOP']))
-{
+} else if (isset($_GET['getAOP'])) {
     getAOP();
-}else if (isset($_GET['newApiKey']))
-{
+} else if (isset($_GET['newApiKey'])) {
     $myRank = $_SESSION['admin_privilege'];
 
-    if($myRank == 2){
+    if ($myRank == 2) {
         getApiKey(true);
-        if(!isset($_SESSION)) 
-    { 
-        session_start(); 
-    }
+        if (!isset($_SESSION)) {
+            session_start();
+        }
         session_unset();
         session_destroy();
-        if(ENABLE_API_SECURITY === true)
+        if (ENABLE_API_SECURITY === true)
             setcookie('aljksdz7', null, -1, "/");
 
-        header("Location: ".BASE_URL."/index.php?loggedOut=true");
+        header("Location: " . BASE_URL . "/index.php?loggedOut=true");
         exit();
-    }else{
-        header("Location: ".BASE_URL."/oc-admin/about.php");
+    } else {
+        header("Location: " . BASE_URL . "/oc-admin/about.php");
         die();
     }
 }
@@ -93,64 +83,53 @@ function quickStatus()
 {
     $event = htmlspecialchars($_POST['event']);
     $callId = htmlspecialchars($_POST['callId']);
-    if(!isset($_SESSION)) 
-    { 
-        session_start(); 
+    if (!isset($_SESSION)) {
+        session_start();
     }
     $callsign = $_SESSION['callsign'];
 
-    switch($event)
-    {
+    switch ($event) {
         case "enroute":
-            $narrativeAdd = date("Y-m-d H:i:s").': '.$callsign.': En-Route<br/>';
-            
+            $narrativeAdd = date("Y-m-d H:i:s") . ': ' . $callsign . ': En-Route<br/>';
+
             $cad_data = new \CAD\CadManager();
-            $cad_data->quickStatus($narrativeAdd, $callId);            
+            $cad_data->quickStatus($narrativeAdd, $callId);
             break;
 
         case "onscene":
 
             break;
     }
-
 }
 
 function getMyCall()
 {
-    if(!isset($_SESSION)) 
-    { 
-        session_start(); 
+    if (!isset($_SESSION)) {
+        session_start();
     }
     //First, check to see if they're on a call
     $uid = $_SESSION['id'];
-    
-    $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getMyCall($uid);            
 
-    if(!$result)
-    {
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getMyCall($uid);
+
+    if (!$result) {
         echo '<div class="alert alert-info"><span>Not currently on a call</span></div>';
-    }
-    else
-    {
+    } else {
         $result = '';
-        
+
         //Figure out what call the user is on
-        $result = $cad_data->getUsersCalls($uid); 
-        
-        foreach($result as $row)
-        {
+        $result = $cad_data->getUsersCalls($uid);
+
+        foreach ($result as $row) {
             $call_id = $row[0];
         }
 
         $result = $cad_data->getUserCallDetails($call_id);
 
-        if(!$result)
-        {
+        if (!$result) {
             echo '<div class="alert alert-info"><span>Not currently on a call</span></div>';
-        }
-        else
-        {
+        } else {
             echo '<table id="activeCalls" class="table table-striped table-bordered">
                 <thead>
                     <tr>
@@ -166,48 +145,41 @@ function getMyCall()
 
 
             $counter = 0;
-            foreach($result as $row)   
-            {
+            foreach ($result as $row) {
                 echo '
-                <tr id="'.$counter.'">
-                    <td>'.$row["call_type"].'</td>';
+                <tr id="' . $counter . '">
+                    <td>' . $row["call_type"] . '</td>';
 
-                    //Issue #28. Check if $row[1] == bolo. If so, change text color to orange
-                    if ($row[1] == "BOLO")
-                    {
-                        echo '<td style="color:orange;">'.$row[1].'</td>';
-                        echo '<td><!--Leave blank--></td>';
-                    }
-                    else
-                    {
-                        echo '<td>'.$row[1].'</td>';
-                        echo '
+                //Issue #28. Check if $row[1] == bolo. If so, change text color to orange
+                if ($row[1] == "BOLO") {
+                    echo '<td style="color:orange;">' . $row[1] . '</td>';
+                    echo '<td><!--Leave blank--></td>';
+                } else {
+                    echo '<td>' . $row[1] . '</td>';
+                    echo '
                             <td>';
-                                getUnitsOnCall($row[0]);
-                            echo '</td>';
-                    }
+                    getUnitsOnCall($row[0]);
+                    echo '</td>';
+                }
 
 
-                    echo '<td>'.$row[3].'/'.$row[4].'/'.$row[5].'</td>';
+                echo '<td>' . $row[3] . '/' . $row[4] . '/' . $row[5] . '</td>';
 
-                    if (isset($_GET['type']) && $_GET['type'] == "responder")
-                    {
-                        echo'
+                if (isset($_GET['type']) && $_GET['type'] == "responder") {
+                    echo '
                         <td>
-                            <button id="'.$row[0].'" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
+                            <button id="' . $row[0] . '" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
                         </td>';
-                    }
-                    else
-                    {
-                    echo'
+                } else {
+                    echo '
                     <td>
-                        <button id="'.$row[0].'" class="btn-link" style="color: red;" value="'.$row[0].'" onclick="clearCall('.$row[0].')">Clear</button>
-                        <button id="'.$row[0].'" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
-                        <input name="uid" name="uid" type="hidden" value="'.$row[0].'"/>
+                        <button id="' . $row[0] . '" class="btn-link" style="color: red;" value="' . $row[0] . '" onclick="clearCall(' . $row[0] . ')">Clear</button>
+                        <button id="' . $row[0] . '" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
+                        <input name="uid" name="uid" type="hidden" value="' . $row[0] . '"/>
                     </td>';
-                    }
+                }
 
-                echo'
+                echo '
                 </tr>
                 ';
                 $counter++;
@@ -217,7 +189,6 @@ function getMyCall()
                 </tbody>
                 </table>
             ';
-
         }
     }
     $pdo = null;
@@ -226,20 +197,16 @@ function getMyCall()
 //Checks to see if there are any active tones. Certain tones will add a session variable
 function checkTones()
 {
-   
+
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->checkTone();  
+    $result = $cad_data->checkTone();
 
     $encode = array();
-    foreach($result as $row)
-    {
+    foreach ($result as $row) {
         // If the tone is set to active
-        if ($row[2] == "1")
-        {
+        if ($row[2] == "1") {
             $encode[$row[1]] = "ACTIVE";
-        }
-        else if ($row[2] == "0")
-        {
+        } else if ($row[2] == "0") {
             $encode[$row[1]] = "INACTIVE";
         }
     }
@@ -252,8 +219,7 @@ function setTone()
     $action = htmlspecialchars($_POST['action']);
 
     $status = null;
-    switch ($action)
-    {
+    switch ($action) {
         case "start":
             $status = '1';
             break;
@@ -263,14 +229,11 @@ function setTone()
     }
 
     $cad_data = new \CAD\CadManager();
-    $cad_data->setTone($status,$tone); 
+    $cad_data->setTone($status, $tone);
 
-    if ($action == "start")
-    {
+    if ($action == "start") {
         echo "SUCCESS START";
-    }
-    else
-    {
+    } else {
         echo "SUCCESS STOP";
     }
 }
@@ -292,8 +255,7 @@ function changeStatus()
     $statusDet = null;
     $onCall = false;
 
-    switch ($status)
-    {
+    switch ($status) {
         case "statusMeal":
             $statusId = '0';
             $statusDet = '4';
@@ -307,7 +269,7 @@ function changeStatus()
             $statusDet = '1';
             $onCall = true;
             break;
-		case "statusUnavailBusy":
+        case "statusUnavailBusy":
             $statusId = '6';
             $statusDet = '6';
             $onCall = true;
@@ -316,23 +278,23 @@ function changeStatus()
             $statusId = '1';
             $statusDet = '5';
             break;
-		case "statusArrivedOC":
+        case "statusArrivedOC":
             $statusId = '7';
             $statusDet = '7';
             $onCall = true;
             break;
-		case "statusTransporting":
+        case "statusTransporting":
             $statusId = '8';
             $statusDet = '8';
             $onCall = true;
             break;
 
-		case "10-52":
+        case "10-52":
             $statusId = '8';
             $statusDet = '8';
             $onCall = true;
             break;
-		case "10-23":
+        case "10-23":
             $statusId = '7';
             $statusDet = '7';
             $onCall = true;
@@ -346,7 +308,7 @@ function changeStatus()
             $statusDet = '1';
             $onCall = true;
             break;
-		case "10-7":
+        case "10-7":
             $statusId = '6';
             $statusDet = '6';
             $onCall = false;
@@ -368,42 +330,37 @@ function changeStatus()
     $cad_data = new CAD\CadManager();
     $result = $cad_data->changeStatus($statusId, $statusDet, $unit);
 
-    if ($onCall)
-    {
+    if ($onCall) {
         $result = $cad_data->selectActiveCallUsers($unit);
 
         $callId = "";
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             $callId = $row[0];
         }
         $result = $cad_data->selectActiveUsers($unit);
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             $callsign = $row[0];
         }
 
         //Update the call_narrative to say they were cleared
-        $narrativeAdd = date("Y-m-d H:i:s").': Unit Cleared: '.$callsign.'<br/>';
-        
+        $narrativeAdd = date("Y-m-d H:i:s") . ': Unit Cleared: ' . $callsign . '<br/>';
+
         $cad_data->updateCallNarrative($narrativeAdd, $callId);
 
         $cad_data->deleteActiveCall($unit);
     }
-
 }
 
 function deleteDispatcher()
 {
     $cad_data = new \CAD\CadManager();
-    $cad_data->deleteDispatcher($_SESSION['identifier']);  
+    $cad_data->deleteDispatcher($_SESSION['identifier']);
 }
 
 function setDispatcher($dep)
 {
     $status = "0";
-    switch($dep)
-    {
+    switch ($dep) {
         case "1":
             $status = "0";
             break;
@@ -415,23 +372,19 @@ function setDispatcher($dep)
     deleteDispatcher();
 
     $cad_data = new \CAD\CadManager();
-    $cad_data->setDispatcher($_SESSION['identifier'], $_SESSION['identifier'], $status);  
+    $cad_data->setDispatcher($_SESSION['identifier'], $_SESSION['identifier'], $status);
 }
 
 function getAOP()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getAOP();  
+    $result = $cad_data->getAOP();
 
-    if(!$result)
-    {
+    if (!$result) {
         echo "NO AOP SET";
-    }
-    else
-    {
-        foreach($result as $row)
-        {
-            echo 'AOP: '.$row[0].' ';
+    } else {
+        foreach ($result as $row) {
+            echo 'AOP: ' . $row[0] . ' ';
         }
     }
 }
@@ -439,16 +392,13 @@ function getAOP()
 function getDispatchers()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getDispatchers();  
-    
-    if(!$result)
-    {
-        echo "<div class=\"alert alert-danger\"><span>No available units</span></div>";
-    }
-    else
-    {
+    $result = $cad_data->getDispatchers();
 
-    echo '
+    if (!$result) {
+        echo "<div class=\"alert alert-danger\"><span>No available units</span></div>";
+    } else {
+
+        echo '
             <table id="dispatchersTable" class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -457,11 +407,10 @@ function getDispatchers()
             </thead>
             <tbody>
         ';
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             echo '
             <tr>
-                <td>'.$row['identifier'].'</td>
+                <td>' . $row['identifier'] . '</td>
             </tr>
             ';
         }
@@ -476,14 +425,11 @@ function getDispatchers()
 function getDispatchersMDT()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getDispatchers();  
-    
-    if(!$result)
-    {
+    $result = $cad_data->getDispatchers();
+
+    if (!$result) {
         $dispatcher = "false";
-    }
-    else
-    {
+    } else {
         $dispatcher = "true";
     }
 }
@@ -493,8 +439,7 @@ function setUnitActive($dep)
     $identifier = $_SESSION['identifier'];
     $uid = $_SESSION['id'];
     $status = "";
-    switch($dep)
-    {
+    switch ($dep) {
         case "1":
             $status = "1";
             break;
@@ -504,25 +449,21 @@ function setUnitActive($dep)
     }
 
     $cad_data = new \CAD\CadManager();
-    $cad_data->setUnitActive($identifier, $identifier, $status, $uid);  
-
+    $cad_data->setUnitActive($identifier, $identifier, $status, $uid);
 }
 
 function getAvailableUnits()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getAvailableUnits();  
+    $result = $cad_data->getAvailableUnits();
 
-   
 
-    if(!$result)
-    {
+
+    if (!$result) {
         echo "<div class=\"alert alert-danger\"><span>No available units</span></div>";
-    }
-    else
-    {
+    } else {
 
-    echo '
+        echo '
             <table id="activeUsers" class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -536,21 +477,20 @@ function getAvailableUnits()
 
 
         $counter = 0;
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             echo '
             <tr>
-                <td>'.$row[0].'</td>
-                <td>'.$row[1].'</td>
+                <td>' . $row[0] . '</td>
+                <td>' . $row[1] . '</td>
                 <td>
                 <div class="dropdown"><button class="btn btn-link dropdown-toggle nopadding" type="button" data-toggle="dropdown">Status <span class="caret"></span></button><ul class="dropdown-menu">
-                    <li><a id="statusMeal'.$counter.'" class="statusMeal '.$row[0].'" onclick="testFunction(this);">10-5/Meal Break</a></li>
-                    <li><a id="statusOther'.$counter.'" class="statusOther '.$row[0].'" onclick="testFunction(this);">10-6/Other</a></li>
-                    <li><a id="statusSig11'.$counter.'" class="statusSig11 '.$row[0].'" onclick="testFunction(this);">Signal 11</a></li>
+                    <li><a id="statusMeal' . $counter . '" class="statusMeal ' . $row[0] . '" onclick="testFunction(this);">10-5/Meal Break</a></li>
+                    <li><a id="statusOther' . $counter . '" class="statusOther ' . $row[0] . '" onclick="testFunction(this);">10-6/Other</a></li>
+                    <li><a id="statusSig11' . $counter . '" class="statusSig11 ' . $row[0] . '" onclick="testFunction(this);">Signal 11</a></li>
                 </ul></div>
 
                 </td>
-                <input name="uid" type="hidden" value='.$row[0].' />
+                <input name="uid" type="hidden" value=' . $row[0] . ' />
             </tr>
             ';
             $counter++;
@@ -566,14 +506,11 @@ function getAvailableUnits()
 function getUnAvailableUnits()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getUnAvailableUnits();  
+    $result = $cad_data->getUnAvailableUnits();
 
-    if(!$result)
-    {
+    if (!$result) {
         echo "<div class=\"alert alert-info\"><span>Units are all avaliable</span></div>";
-    }
-    else
-    {
+    } else {
         echo '
                 <table class="table table-striped table-bordered">
                 <thead>
@@ -587,25 +524,24 @@ function getUnAvailableUnits()
                 <tbody>
             ';
 
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             echo '
             <tr>
-                <td>'.$row[0].'</td>
-                <td>'.$row[1].'</td>
+                <td>' . $row[0] . '</td>
+                <td>' . $row[1] . '</td>
                 <td>';
 
-                    getIndividualStatus($row[1]);
+            getIndividualStatus($row[1]);
 
-                echo '</td>
+            echo '</td>
 
                 <td>
-                <a id="logoutUser" class="nopadding logoutUser '.$row[0].'" onclick="logoutUser(this);" style="color:red; cursor:pointer;">Logout</a>&nbsp;&nbsp;&nbsp;
+                <a id="logoutUser" class="nopadding logoutUser ' . $row[0] . '" onclick="logoutUser(this);" style="color:red; cursor:pointer;">Logout</a>&nbsp;&nbsp;&nbsp;
                 <div class="dropdown"><button class="btn btn-link dropdown-toggle nopadding" style="display: inline-block; vertical-align:top;" type="button" data-toggle="dropdown">Status <span class="caret"></span></button><ul class="dropdown-menu">
-                    <li><a id="statusAvail" class="statusAvailBusy '.$row[0].'" onclick="testFunction(this);">10-8/Available</a></li>
+                    <li><a id="statusAvail" class="statusAvailBusy ' . $row[0] . '" onclick="testFunction(this);">10-8/Available</a></li>
                 </ul></div>
                 </td>
-                <input name="uid" type="hidden" value='.$row[0].' />
+                <input name="uid" type="hidden" value=' . $row[0] . ' />
             </tr>
             ';
         }
@@ -614,25 +550,23 @@ function getUnAvailableUnits()
             </tbody>
             </table>
         ';
-      }
+    }
 }
 
 function getIndividualStatus($callsign)
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getIndividualStatus($callsign);  
+    $result = $cad_data->getIndividualStatus($callsign);
 
     $statusDetail = "";
-    foreach($result as $row)
-    {
+    foreach ($result as $row) {
         $statusDetail = $row[0];
     }
 
-    $result = $cad_data->getIndividualStatusText($statusDetail);  
+    $result = $cad_data->getIndividualStatusText($statusDetail);
 
     $statusText = "";
-    foreach($result as $row)
-    {
+    foreach ($result as $row) {
         $statusText = $row[0];
     }
     echo $statusText;
@@ -641,11 +575,10 @@ function getIndividualStatus($callsign)
 function getIncidentType()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getIncidentType();  
+    $result = $cad_data->getIncidentType();
 
-    foreach($result as $row)
-    {
-        echo '<option value="'.$row[0].'">'.$row[0].'</option>';
+    foreach ($result as $row) {
+        echo '<option value="' . $row[0] . '">' . $row[0] . '</option>';
     }
 }
 
@@ -653,23 +586,21 @@ function getIncidentType()
 function getStreet()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getStreet();  
+    $result = $cad_data->getStreet();
 
 
-    foreach($result as $row)
-    {
-        echo '<option value="'.$row[0].'">'.$row[0].'</option>';
+    foreach ($result as $row) {
+        echo '<option value="' . $row[0] . '">' . $row[0] . '</option>';
     }
 }
 
 function getActiveUnits()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getActiveUnits();  
+    $result = $cad_data->getActiveUnits();
 
     $encode = array();
-    foreach($result as $row)
-    {
+    foreach ($result as $row) {
         $encode[$row[0]] = $row[0];
     }
 
@@ -679,11 +610,10 @@ function getActiveUnits()
 function getActiveUnitsModal()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getActiveUnits();  
+    $result = $cad_data->getActiveUnits();
 
     $encode = array();
-    foreach($result as $row)
-    {
+    foreach ($result as $row) {
         $encode[$row[1]] = $row[0];
     }
 
@@ -693,14 +623,11 @@ function getActiveUnitsModal()
 function getActiveCalls()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getActiveCalls();  
+    $result = $cad_data->getActiveCalls();
 
-    if(!$result)
-    {
+    if (!$result) {
         echo '<div class="alert alert-info"><span>No active calls</span></div>';
-    }
-    else
-    {
+    } else {
         echo '<table id="activeCalls" class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -716,49 +643,42 @@ function getActiveCalls()
 
 
         $counter = 0;
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             echo '
-            <tr id="'.$counter.'">
-                <td>'.$row[0].'</td>';
+            <tr id="' . $counter . '">
+                <td>' . $row[0] . '</td>';
 
-                //Issue #28. Check if $row[1] == bolo. If so, change text color to orange
-                if ($row[1] == "BOLO")
-                {
-                    echo '<td style="color:orange;">'.$row[1].'</td>';
-                    echo '<td><!--Leave blank--></td>';
-                }
-                else
-                {
-                    echo '<td>'.$row[1].'</td>';
-                    echo '
+            //Issue #28. Check if $row[1] == bolo. If so, change text color to orange
+            if ($row[1] == "BOLO") {
+                echo '<td style="color:orange;">' . $row[1] . '</td>';
+                echo '<td><!--Leave blank--></td>';
+            } else {
+                echo '<td>' . $row[1] . '</td>';
+                echo '
                         <td>';
-                            getUnitsOnCall($row[0]);
-                        echo '</td>';
-                }
+                getUnitsOnCall($row[0]);
+                echo '</td>';
+            }
 
 
-                echo '<td>'.$row[3].'/'.$row[4].'/'.$row[5].'</td>';
+            echo '<td>' . $row[3] . '/' . $row[4] . '/' . $row[5] . '</td>';
 
-                if (isset($_GET['type']) && $_GET['type'] == "responder")
-                {
-                    echo'
+            if (isset($_GET['type']) && $_GET['type'] == "responder") {
+                echo '
                     <td>
-                        <button id="'.$row[0].'" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
+                        <button id="' . $row[0] . '" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
                     </td>';
-                }
-                else
-                {
-                echo'
+            } else {
+                echo '
                 <td>
-                    <button id="'.$row[0].'" class="btn-link" style="color: red;" value="'.$row[0].'" onclick="clearCall('.$row[0].')">Clear</button>
-                    <button id="'.$row[0].'" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
-                    <input id="'.$row[0].'" type="submit" name="assign_unit" data-toggle="modal" data-target="#assign" class="btn-link '.$row[0].'" value="Assign"/>
-                    <input name="uid" name="uid" type="hidden" value="'.$row[0].'"/>
+                    <button id="' . $row[0] . '" class="btn-link" style="color: red;" value="' . $row[0] . '" onclick="clearCall(' . $row[0] . ')">Clear</button>
+                    <button id="' . $row[0] . '" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
+                    <input id="' . $row[0] . '" type="submit" name="assign_unit" data-toggle="modal" data-target="#assign" class="btn-link ' . $row[0] . '" value="Assign"/>
+                    <input name="uid" name="uid" type="hidden" value="' . $row[0] . '"/>
                 </td>';
-                }
+            }
 
-            echo'
+            echo '
             </tr>
             ';
             $counter++;
@@ -768,21 +688,17 @@ function getActiveCalls()
             </tbody>
             </table>
         ';
-
     }
 }
 
 function getActivePersonBOLO()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getActivePersonBOLO();  
-    
-    if(!$result)
-    {
+    $result = $cad_data->getActivePersonBOLO();
+
+    if (!$result) {
         echo '<div class="alert alert-info"><span>No active calls</span></div>';
-    }
-    else
-    {
+    } else {
         echo '<table id="activeCalls" class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -798,49 +714,42 @@ function getActivePersonBOLO()
 
 
         $counter = 0;
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             echo '
-            <tr id="'.$counter.'">
-                <td>'.$row[0].'</td>';
+            <tr id="' . $counter . '">
+                <td>' . $row[0] . '</td>';
 
-                //Issue #28. Check if $row[1] == bolo. If so, change text color to orange
-                if ($row[1] == "BOLO")
-                {
-                    echo '<td style="color:orange;">'.$row[1].'</td>';
-                    echo '<td><!--Leave blank--></td>';
-                }
-                else
-                {
-                    echo '<td>'.$row[1].'</td>';
-                    echo '
+            //Issue #28. Check if $row[1] == bolo. If so, change text color to orange
+            if ($row[1] == "BOLO") {
+                echo '<td style="color:orange;">' . $row[1] . '</td>';
+                echo '<td><!--Leave blank--></td>';
+            } else {
+                echo '<td>' . $row[1] . '</td>';
+                echo '
                         <td>';
-                            getUnitsOnCall($row[0]);
-                        echo '</td>';
-                }
+                getUnitsOnCall($row[0]);
+                echo '</td>';
+            }
 
 
-                echo '<td>'.$row[2].'/'.$row[3].'/'.$row[4].'</td>';
+            echo '<td>' . $row[2] . '/' . $row[3] . '/' . $row[4] . '</td>';
 
-                if (isset($_GET['type']) && $_GET['type'] == "responder")
-                {
-                    echo'
+            if (isset($_GET['type']) && $_GET['type'] == "responder") {
+                echo '
                     <td>
-                        <button id="'.$row[0].'" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
+                        <button id="' . $row[0] . '" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
                     </td>';
-                }
-                else
-                {
-                echo'
+            } else {
+                echo '
                 <td>
-                    <button id="'.$row[0].'" class="btn-link" style="color: red;" value="'.$row[0].'" onclick="clearCall('.$row[0].')">Clear</button>
-                    <button id="'.$row[0].'" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
-                    <input id="'.$row[0].'" type="submit" name="assign_unit" data-toggle="modal" data-target="#assign" class="btn-link '.$row[0].'" value="Assign"/>
-                    <input name="uid" name="uid" type="hidden" value="'.$row[0].'"/>
+                    <button id="' . $row[0] . '" class="btn-link" style="color: red;" value="' . $row[0] . '" onclick="clearCall(' . $row[0] . ')">Clear</button>
+                    <button id="' . $row[0] . '" class="btn-link" name="call_details_btn" data-toggle="modal" data-target="#callDetails">Details</button>
+                    <input id="' . $row[0] . '" type="submit" name="assign_unit" data-toggle="modal" data-target="#assign" class="btn-link ' . $row[0] . '" value="Assign"/>
+                    <input name="uid" name="uid" type="hidden" value="' . $row[0] . '"/>
                 </td>';
-                }
+            }
 
-            echo'
+            echo '
             </tr>
             ';
             $counter++;
@@ -850,25 +759,20 @@ function getActivePersonBOLO()
             </tbody>
             </table>
         ';
-
     }
 }
 
 function getUnitsOnCall($callId)
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getUnitsOnCall($callId);  
+    $result = $cad_data->getUnitsOnCall($callId);
 
     $units = "";
-    if(!$result)
-    {
+    if (!$result) {
         $units = '<span style="color: red;">No Assigned Units!</span>';
-    }
-    else
-    {
-        foreach($result as $row)
-        {
-            $units = $units.''.$row[2].', ';
+    } else {
+        foreach ($result as $row) {
+            $units = $units . '' . $row[2] . ', ';
         }
     }
 
@@ -880,18 +784,16 @@ function getCallDetails()
     $callId = htmlspecialchars($_GET['callId']);
 
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getCallDetails($callId);  
+    $result = $cad_data->getCallDetails($callId);
 
     $encode = array();
-    foreach($result as $row)
-    {
+    foreach ($result as $row) {
         $encode["call_id"] = $row[0];
         $encode["call_type"] = $row[1];
         $encode["call_street1"] = $row[3];
         $encode["call_street2"] = $row[4];
         $encode["call_street3"] = $row[5];
         $encode["narrative"] = $row[6];
-
     }
 
     echo json_encode($encode);
@@ -900,23 +802,21 @@ function getCallDetails()
 function getCivilianNamesOption()
 {
     $cad_data = new \CAD\CadManager();
-    $result = $cad_data->getCivilianNamesOption();  
+    $result = $cad_data->getCivilianNamesOption();
 
-    foreach($result as $row)
-    {
-        echo "<option value=".$row[0].">".$row[1]."</option>";
+    foreach ($result as $row) {
+        echo "<option value=" . $row[0] . ">" . $row[1] . "</option>";
     }
 }
 
 function getCitations()
 {
-    
+
     $cit_data = new \Citations\CitationManager();
     $result = $cit_data->getCitations();
 
-    foreach($result as $row)
-    {
-        echo '<option value="'.$row[0].'">'.$row[0].'</option>';
+    foreach ($result as $row) {
+        echo '<option value="' . $row[0] . '">' . $row[0] . '</option>';
     }
 }
 
@@ -933,9 +833,8 @@ function getVehicleMakes()
     $veh_data = new \Vehicles\vehicleManager();
     $result = $veh_data->getVehicleMakes();
 
-    foreach($result as $row)
-    {
-        echo '<option value="'.$row[0].'">'.$row[0].'</option>';
+    foreach ($result as $row) {
+        echo '<option value="' . $row[0] . '">' . $row[0] . '</option>';
     }
 }
 
@@ -951,9 +850,8 @@ function getVehicleModels()
     $veh_data = new \Vehicles\vehicleManager();
     $result = $veh_data->getVehicleModels();
 
-    foreach($result as $row)
-    {
-        echo '<option value="'.$row[0].'">'.$row[0].'</option>';
+    foreach ($result as $row) {
+        echo '<option value="' . $row[0] . '">' . $row[0] . '</option>';
     }
 }
 
@@ -969,9 +867,8 @@ function getVehicle()
     $veh_data = new \Vehicles\vehicleManager();
     $result = $veh_data->getVehicles();
 
-    foreach($result as $row)
-    {
-        echo '<option value="'.$row[1].' '.$row[2].'">'.$row[1].'-'.$row[2].'</option>';
+    foreach ($result as $row) {
+        echo '<option value="' . $row[1] . ' ' . $row[2] . '">' . $row[1] . '-' . $row[2] . '</option>';
     }
 }
 
@@ -1024,9 +921,8 @@ function getColors()
     $veh_data = new \Vehicles\vehicleManager();
     $result = $veh_data->getVehicleColors();
 
-    foreach($result as $row)
-    {
-        echo '<option value="'.$row[0].'-'.$row[1].'">'.$row[0].'-'.$row[1].'</option>';
+    foreach ($result as $row) {
+        echo '<option value="' . $row[0] . '-' . $row[1] . '">' . $row[0] . '-' . $row[1] . '</option>';
     }
 }
 
@@ -1034,11 +930,10 @@ function getCivilianNames()
 {
     $civ_data = new \Civilian\CivilianManager();
     $result = $civ_data->getCivilianNames();
-    
-    foreach($result as $row)
-	{
-		echo "<option value=\"$row[0]\">$row[1]</option>";
-	}
+
+    foreach ($result as $row) {
+        echo "<option value=\"$row[0]\">$row[1]</option>";
+    }
 }
 
 function callCheck()
@@ -1050,14 +945,11 @@ function callCheck()
     $civ_data = new \Civilian\CivilianManager();
     $result = $cad_data->callCheck($uid);
 
-	if(!$result)
-	{
+    if (!$result) {
         $civ_data->replaceActiveUsers($identifier, $uid, "6");
-    }
-	else
-	{
+    } else {
         $civ_data->replaceActiveUsers($identifier, $uid, "3");
-	}
+    }
 }
 
 function getWeapons()
@@ -1065,9 +957,8 @@ function getWeapons()
     $weapon_data = new \Weapons\WeaponManager();
     $result = $weapon_data->getWeapons();
 
-    foreach($result as $row)
-    {
-        echo '<option value="'.$row[1].' '.$row[2].'">'.$row[1].'&#8212;'.$row[2].'</option>';
+    foreach ($result as $row) {
+        echo '<option value="' . $row[1] . ' ' . $row[2] . '">' . $row[1] . '&#8212;' . $row[2] . '</option>';
     }
 }
 
@@ -1075,13 +966,10 @@ function rms_warnings()
 {
     $warning_data = new \Warnings\WarningManager();
     $result = $warning_data->rms_warnings();
-    
-    if(!$result)
-    {
+
+    if (!$result) {
         echo "<div class=\"alert alert-info\"><span>There are currently no warnings in the NCIC Database</span></div>";
-    }
-    else
-    {
+    } else {
         echo '
             <table id="rms_warnings" class="table table-striped table-bordered">
             <thead>
@@ -1095,14 +983,13 @@ function rms_warnings()
             <tbody>
         ';
 
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             echo '
             <tr>
-                <td>'.$row[0].'</td>
-                <td>'.$row[2].'</td>
-                <td>'.$row[3].'</td>
-                <td>'.$row[4].'</td>
+                <td>' . $row[0] . '</td>
+                <td>' . $row[2] . '</td>
+                <td>' . $row[3] . '</td>
+                <td>' . $row[4] . '</td>
             </tr>
             ';
         }
@@ -1116,34 +1003,12 @@ function rms_warnings()
 
 function rms_citations()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $citation_data = new \Citations\CitationManager();
+    $result = $citation_data->rms_citations();
 
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_names.name, ".DB_PREFIX."ncic_citations.id, ".DB_PREFIX."ncic_citations.citation_name, ".DB_PREFIX."ncic_citations.citation_fine, ".DB_PREFIX."ncic_citations.issued_date, ".DB_PREFIX."ncic_citations.issued_by FROM ".DB_PREFIX."ncic_citations INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_citations.name_id=".DB_PREFIX."ncic_names.id WHERE ".DB_PREFIX."ncic_citations.status = '1'");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
-    {
+    if (!$result) {
         echo "<div class=\"alert alert-info\"><span>There are currently no citations in the NCIC Database</span></div>";
-    }
-    else
-    {
+    } else {
         echo '
             <table id="rms_citations" class="table table-striped table-bordered">
             <thead>
@@ -1158,15 +1023,14 @@ function rms_citations()
             <tbody>
         ';
 
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             echo '
             <tr>
-                <td>'.$row[0].'</td>
-                <td>'.$row[2].'</td>
-                <td>'.$row[3].'</td>
-                <td>'.$row[4].'</td>
-                <td>'.$row[5].'</td>
+                <td>' . $row[0] . '</td>
+                <td>' . $row[2] . '</td>
+                <td>' . $row[3] . '</td>
+                <td>' . $row[4] . '</td>
+                <td>' . $row[5] . '</td>
             </tr>
             ';
         }
@@ -1180,34 +1044,12 @@ function rms_citations()
 
 function rms_arrests()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_names.name, ".DB_PREFIX."ncic_arrests.id, ".DB_PREFIX."ncic_arrests.arrest_reason, ".DB_PREFIX."ncic_arrests.arrest_fine, ".DB_PREFIX."ncic_arrests.issued_date, ".DB_PREFIX."ncic_arrests.issued_by FROM ".DB_PREFIX."ncic_arrests INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_arrests.name_id=".DB_PREFIX."ncic_names.id");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
-    {
+    $civ_data = new \Civilian\CivilianManager();
+    $result = $civ_data->rms_arrests();
+    
+    if (!$result) {
         echo "<div class=\"alert alert-info\"><span>There are currently no arrests in the NCIC Database</span></div>";
-    }
-    else
-    {
+    } else {
         echo '
             <table id="rms_arrests" class="table table-striped table-bordered">
             <thead>
@@ -1222,15 +1064,14 @@ function rms_arrests()
             <tbody>
         ';
 
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             echo '
             <tr>
-                <td>'.$row[0].'</td>
-                <td>'.$row[2].'</td>
-                <td>'.$row[3].'</td>
-                <td>'.$row[4].'</td>
-                <td>'.$row[5].'</td>
+                <td>' . $row[0] . '</td>
+                <td>' . $row[2] . '</td>
+                <td>' . $row[3] . '</td>
+                <td>' . $row[4] . '</td>
+                <td>' . $row[5] . '</td>
             </tr>
             ';
         }
@@ -1244,34 +1085,12 @@ function rms_arrests()
 
 function rms_warrants()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $warrant_data = new \Warrants\WarrantManager();
+    $result = $warrant_data->rms_warrants();
 
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_warrants.*, ".DB_PREFIX."ncic_names.name FROM ".DB_PREFIX."ncic_warrants INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_names.id=".DB_PREFIX."ncic_warrants.name_id");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
-    {
+    if (!$result) {
         echo "<div class=\"alert alert-info\"><span>There are currently no warrants in the NCIC Database</span></div>";
-    }
-    else
-    {
+    } else {
         echo '
             <table id="rms_warrants" class="table table-striped table-bordered">
             <thead>
@@ -1288,16 +1107,15 @@ function rms_warrants()
             <tbody>
         ';
 
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             echo '
             <tr>
-                <td>'.$row[6].'</td>
-                <td>'.$row[7].'</td>
-                <td>'.$row[2].'</td>
-                <td>'.$row[5].'</td>
-                <td>'.$row[1].'</td>
-                <td>'.$row[3].'</td>
+                <td>' . $row[6] . '</td>
+                <td>' . $row[7] . '</td>
+                <td>' . $row[2] . '</td>
+                <td>' . $row[5] . '</td>
+                <td>' . $row[1] . '</td>
+                <td>' . $row[3] . '</td>
             </tr>
             ';
         }

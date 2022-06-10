@@ -82,4 +82,19 @@ class CitationManager extends \Dbh{
             return $results;
         }
     }
+
+    public function rms_citations(){
+        $stmt = $this->connect()->prepare("SELECT ".DB_PREFIX."ncic_names.name, ".DB_PREFIX."ncic_citations.id, ".DB_PREFIX."ncic_citations.citation_name, ".DB_PREFIX."ncic_citations.citation_fine, ".DB_PREFIX."ncic_citations.issued_date, ".DB_PREFIX."ncic_citations.issued_by FROM ".DB_PREFIX."ncic_citations INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_citations.name_id=".DB_PREFIX."ncic_names.id WHERE ".DB_PREFIX."ncic_citations.status = '1'");
+        if (!$stmt->execute()) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
 }

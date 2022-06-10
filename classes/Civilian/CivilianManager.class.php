@@ -344,7 +344,23 @@ class CivilianManager extends \Dbh
     public function replaceActiveUsers($identifier, $uid, $id)
     {
         $stmt = $this->connect()->prepare("REPLACE INTO ".DB_PREFIX."active_users (identifier, callsign, status, status_detail, id) VALUES (?, ?, '0', ?, ?)");
-        if (!$stmt->execute($identifier, $identifier, $id, $uid)) {
+        if (!$stmt->execute(array($identifier, $identifier, $id, $uid))) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
+
+    public function rms_arrests()
+    {
+        $stmt = $this->connect()->prepare("SELECT " . DB_PREFIX . "ncic_names.name, " . DB_PREFIX . "ncic_arrests.id, " . DB_PREFIX . "ncic_arrests.arrest_reason, " . DB_PREFIX . "ncic_arrests.arrest_fine, " . DB_PREFIX . "ncic_arrests.issued_date, " . DB_PREFIX . "ncic_arrests.issued_by FROM " . DB_PREFIX . "ncic_arrests INNER JOIN " . DB_PREFIX . "ncic_names ON " . DB_PREFIX . "ncic_arrests.name_id=" . DB_PREFIX . "ncic_names.id");
+        if (!$stmt->execute()) {
             $_SESSION['error'] = $stmt->errorInfo();
             header('Location: ' . BASE_URL . '/plugins/error/index.php');
             die();
