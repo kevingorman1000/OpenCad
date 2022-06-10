@@ -21,6 +21,23 @@ class UserService extends \Dbh{
         }
     }
 
+    public function LogOutUser($identifier){
+        $stmt = $this->connect()->prepare("DELETE FROM ".DB_PREFIX."active_users WHERE identifier = ?");
+        if (!$stmt->execute(array($identifier))) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            foreach($results as $result){
+                return $result;
+            }
+        }
+    }
+
     public function getUserDetails($uid){
         $stmt = $this->connect()->prepare("SELECT id, name, email, identifier, admin_privilege FROM ".DB_PREFIX."users WHERE ID = ?");
         if (!$stmt->execute(array($uid))) {

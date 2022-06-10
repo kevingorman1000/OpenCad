@@ -16,7 +16,7 @@ if (!isset($_SESSION)) {
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 }
 
 require_once(__DIR__ . '/../oc-config.php');

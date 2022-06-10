@@ -12,10 +12,7 @@ This program is free software: you can redistribute it and/or modify
 
 This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
 **/
-    if(!isset($_SESSION)) 
-    { 
-        session_start(); 
-    } ;
+    session_start();
     require_once(__DIR__.'../../../oc-config.php');
     require_once(__DIR__.'../../../oc-functions.php');
     include(__DIR__ .'../../../actions/dataActions.php');

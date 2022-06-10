@@ -67,4 +67,19 @@ class CitationManager extends \Dbh{
             return $results;
         }
     }
+
+    public function getCitations(){
+        $stmt = $this->connect()->prepare("SELECT citation_name FROM ".DB_PREFIX."citations");
+        if (!$stmt->execute()) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
 }

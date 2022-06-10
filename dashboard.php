@@ -15,7 +15,7 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
 if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 include("./oc-config.php");
 require("./actions/generalActions.php");
 

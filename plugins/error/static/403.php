@@ -2,7 +2,7 @@
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['error_title'] = "Forbidden";
     $_SESSION['error'] = "We are sorry, but you are not allowed to visit this page.";
 

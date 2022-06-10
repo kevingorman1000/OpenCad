@@ -252,7 +252,7 @@ function deleteCitationType()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = htmlspecialchars($_POST['citationTypeID']);
 
     $citation_data = new Citations\CitationManager();
@@ -262,7 +262,7 @@ function deleteCitationType()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident type from database</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/citationTypeManager.php");
 }
@@ -412,7 +412,7 @@ function deleteDepartment()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $departmentID = htmlspecialchars($_POST['departmentID']);
 
     $department_data = new Departments\DepartmentManager();
@@ -422,7 +422,7 @@ function deleteDepartment()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident  from database</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/departmentsManager.php");
 }
@@ -560,7 +560,7 @@ function deleteIncidentType()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = !empty($_POST['incidentTypeID']) ? htmlspecialchars($_POST['incidentTypeID']) : '';
 
     $incident_data = new Incidents\IncidentManager();
@@ -570,7 +570,7 @@ function deleteIncidentType()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident type from database</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/incidentTypeManager.php");
 }
@@ -708,7 +708,7 @@ function deleteRadioCode()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = !empty($_POST['deleteRadioCodeId']) ? htmlspecialchars($_POST['deleteRadioCodeId']) : '';
 
     $radio_data = new \Radio\radioCodesManager();
@@ -718,7 +718,7 @@ function deleteRadioCode()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident type from database</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/radioCodesManager.php");
 }
@@ -856,7 +856,7 @@ function deleteStreet()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = htmlspecialchars($_POST['streetID']);
 
     $street_data = new \Street\StreetManager();
@@ -866,7 +866,7 @@ function deleteStreet()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed street from database</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/streetManager.php");
 }
@@ -1009,7 +1009,7 @@ function deleteVehicle()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id         = !empty($_POST['vehicleID']) ? htmlspecialchars($_POST['vehicleID']) : '';
 
     $veh_data = new Vehicles\vehicleManager();
@@ -1019,7 +1019,7 @@ function deleteVehicle()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = "<div class=\"alert alert-success\"><span>Vehicle " . $_POST['make'] . " " . $_POST['model'] . " removed successfully.</div>";
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/vehicleManager.php");
 }
@@ -1152,7 +1152,7 @@ function deleteWarningType()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = htmlspecialchars($_POST['warningTypeID']);
 
     $warning_data = new Warnings\WarningManager();
@@ -1162,7 +1162,7 @@ function deleteWarningType()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed incident type from database</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/warningTypeManager.php");
 }
@@ -1299,7 +1299,7 @@ function deleteWarrantType()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = htmlspecialchars($_POST['warrantTypeID']);
 
     $warrant_data = new Warrants\WarrantManager();
@@ -1308,7 +1308,7 @@ function deleteWarrantType()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed warrant type from database</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/warrantTypeManager.php");
 }
@@ -1447,7 +1447,7 @@ function deleteWeapon()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = htmlspecialchars($_POST['WeaponID']);
 
     $weapon_data = new Weapons\WeaponManager();
@@ -1457,7 +1457,7 @@ function deleteWeapon()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully removed weapon from database</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/dataManagement/weaponManager.php");
 }
@@ -1529,7 +1529,7 @@ function resetData()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['successMessage'] = '<div class="alert alert-success"><span>Successfully reset the ' . strtoupper($dataType) . ' table.</span></div>';
     header("Location: " . BASE_URL . "/oc-admin/admin.php");
 }

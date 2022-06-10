@@ -19,7 +19,7 @@ include("./actions/profileActions.php");
 		if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 		if (empty($_SESSION['logged_in']))
 		{
 				header('Location: ./index.php');

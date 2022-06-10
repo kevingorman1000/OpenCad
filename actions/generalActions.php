@@ -17,6 +17,7 @@ This program comes with ABSOLUTELY NO WARRANTY; Use at your own risk.
 require_once(__DIR__ . "/../oc-config.php");
 require_once(__DIR__ . "/../oc-functions.php");
 include_once(__DIR__ . "/../plugins/api_auth.php");
+require_once(__DIR__ . "/../includes/autoloader.inc.php");
 
 /**
  * Patch notes:
@@ -74,7 +75,7 @@ if (isset($_GET['getCalls'])){
         if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
         session_unset();
         session_destroy();
         if(ENABLE_API_SECURITY === true)
@@ -95,35 +96,16 @@ function quickStatus()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $callsign = $_SESSION['callsign'];
 
     switch($event)
     {
         case "enroute":
             $narrativeAdd = date("Y-m-d H:i:s").': '.$callsign.': En-Route<br/>';
-
-            try{
-                $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-            } catch(PDOException $ex)
-            {
-                $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-                $_SESSION['error_blob'] = $ex;
-                header('Location: '.BASE_URL.'/plugins/error/index.php');
-                die();
-            }
-
-            $stmt = $pdo->prepare("UPDATE ".DB_PREFIX."calls SET call_narrative = concat(call_narrative, ?) WHERE call_id = ?");
-            $result = $stmt->execute(array($narrativeAdd, $callId));
-
-            if (!$result)
-            {
-                $_SESSION['error'] = $stmt->errorInfo();
-                header('Location: '.BASE_URL.'/plugins/error/index.php');
-                die();
-            }
-            $pdo = null;
-
+            
+            $cad_data = new \CAD\CadManager();
+            $cad_data->quickStatus($narrativeAdd, $callId);            
             break;
 
         case "onscene":
@@ -138,71 +120,32 @@ function getMyCall()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     //First, check to see if they're on a call
     $uid = $_SESSION['id'];
+    
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getMyCall($uid);            
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("SELECT ".DB_PREFIX."active_users.* from ".DB_PREFIX."active_users WHERE ".DB_PREFIX."active_users.id = ? AND ".DB_PREFIX."active_users.status = '0' AND ".DB_PREFIX."active_users.status_detail = '3'");
-    $result = $stmt->execute(array($uid));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $num_rows = $stmt->rowCount();
-
-    if($num_rows == 0)
+    if(!$result)
     {
         echo '<div class="alert alert-info"><span>Not currently on a call</span></div>';
     }
     else
     {
+        $result = '';
+        
         //Figure out what call the user is on
-        $sql = '';
-
-        $stmt = $pdo->prepare("SELECT call_id from ".DB_PREFIX."calls_users WHERE id = ?");
-        $resStatus = $stmt->execute(array($uid));
-        $result = $stmt;
-
-        if (!$resStatus)
-        {
-            $_SESSION['error'] = $stmt->errorInfo();
-            header('Location: '.BASE_URL.'/plugins/error/index.php');
-            die();
-        }
-
+        $result = $cad_data->getUsersCalls($uid); 
+        
         foreach($result as $row)
         {
             $call_id = $row[0];
         }
 
-        $stmt = $pdo->prepare("SELECT * from ".DB_PREFIX."calls WHERE call_id = ?");
-        $resStatus = $stmt->execute(array($uid));
-        $result = $stmt;
+        $result = $cad_data->getUserCallDetails($call_id);
 
-        if (!$resStatus)
-        {
-            $_SESSION['error'] = $stmt->errorInfo();
-            header('Location: '.BASE_URL.'/plugins/error/index.php');
-            die();
-        }
-
-        $num_rows = $result->rowCount();
-
-        if($num_rows == 0)
+        if(!$result)
         {
             echo '<div class="alert alert-info"><span>Not currently on a call</span></div>';
         }
@@ -223,11 +166,11 @@ function getMyCall()
 
 
             $counter = 0;
-            foreach($result as $row)
+            foreach($result as $row)   
             {
                 echo '
                 <tr id="'.$counter.'">
-                    <td>'.$row[0].'</td>';
+                    <td>'.$row["call_type"].'</td>';
 
                     //Issue #28. Check if $row[1] == bolo. If so, change text color to orange
                     if ($row[1] == "BOLO")
@@ -283,25 +226,9 @@ function getMyCall()
 //Checks to see if there are any active tones. Certain tones will add a session variable
 function checkTones()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT * from ".DB_PREFIX."tones");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+   
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->checkTone();  
 
     $encode = array();
     foreach($result as $row)
@@ -324,7 +251,7 @@ function setTone()
     $tone = htmlspecialchars($_POST['tone']);
     $action = htmlspecialchars($_POST['action']);
 
-    $status;
+    $status = null;
     switch ($action)
     {
         case "start":
@@ -335,26 +262,8 @@ function setTone()
             break;
     }
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("UPDATE ".DB_PREFIX."tones SET active = ? WHERE name = ?");
-    $result = $stmt->execute(array($status,$tone));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $cad_data = new \CAD\CadManager();
+    $cad_data->setTone($status,$tone); 
 
     if ($action == "start")
     {
@@ -370,36 +279,17 @@ function logoutUser()
 {
     $identifier = htmlspecialchars($_POST['unit']);
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $users_data = new Users\UserService();
 
-    $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."active_users WHERE identifier = ?");
-    $result = $stmt->execute(array($identifier));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    echo "SUCCESS";
+    $users_data->LogOutUser($identifier);
 }
 
 function changeStatus()
 {
     $unit = htmlspecialchars($_POST['unit']);
     $status = htmlspecialchars($_POST['status']);
-    $statusId;
-    $statusDet;
+    $statusId = null;
+    $statusDet = null;
     $onCall = false;
 
     switch ($status)
@@ -475,56 +365,19 @@ function changeStatus()
             break;
     }
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("UPDATE ".DB_PREFIX."active_users SET status = ?, status_detail = ? WHERE identifier = ?");
-    $result = $stmt->execute(array($statusId, $statusDet, $unit));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $cad_data = new CAD\CadManager();
+    $result = $cad_data->changeStatus($statusId, $statusDet, $unit);
 
     if ($onCall)
     {
-        $stmt = $pdo->prepare("SELECT call_id FROM ".DB_PREFIX."calls_users WHERE identifier = ?");
-        $resStatus = $stmt->execute(array($unit));
-        $result = $stmt;
-
-        if (!$resStatus)
-        {
-            $_SESSION['error'] = $stmt->errorInfo();
-            header('Location: '.BASE_URL.'/plugins/error/index.php');
-            die();
-        }
+        $result = $cad_data->selectActiveCallUsers($unit);
 
         $callId = "";
         foreach($result as $row)
         {
             $callId = $row[0];
         }
-
-        $stmt = $pdo->prepare("SELECT callsign FROM ".DB_PREFIX."active_users WHERE identifier = ?");
-        $resStatus = $stmt->execute(array($unit));
-        $result = $stmt;
-
-        if (!$resStatus)
-        {
-            $_SESSION['error'] = $stmt->errorInfo();
-            header('Location: '.BASE_URL.'/plugins/error/index.php');
-            die();
-        }
-
+        $result = $cad_data->selectActiveUsers($unit);
         foreach($result as $row)
         {
             $callsign = $row[0];
@@ -532,59 +385,23 @@ function changeStatus()
 
         //Update the call_narrative to say they were cleared
         $narrativeAdd = date("Y-m-d H:i:s").': Unit Cleared: '.$callsign.'<br/>';
+        
+        $cad_data->updateCallNarrative($narrativeAdd, $callId);
 
-        $stmt = $pdo->prepare("UPDATE ".DB_PREFIX."calls SET call_narrative = concat(call_narrative, ?) WHERE call_id = ?");
-        $result = $stmt->execute(array($narrativeAdd, $callId));
-
-        if (!$result)
-        {
-            $_SESSION['error'] = $stmt->errorInfo();
-            header('Location: '.BASE_URL.'/plugins/error/index.php');
-            die();
-        }
-
-        $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."calls_users WHERE identifier = ?");
-        $result = $stmt->execute(array($unit));
-
-        if (!$result)
-        {
-            $_SESSION['error'] = $stmt->errorInfo();
-            header('Location: '.BASE_URL.'/plugins/error/index.php');
-            die();
-        }
+        $cad_data->deleteActiveCall($unit);
     }
 
-    $pdo = null;
-    echo "SUCCESS";
 }
 
 function deleteDispatcher()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("DELETE FROM ".DB_PREFIX."dispatchers WHERE identifier = ?");
-    $result = $stmt->execute(array($_SESSION['identifier']));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $cad_data = new \CAD\CadManager();
+    $cad_data->deleteDispatcher($_SESSION['identifier']);  
 }
 
 function setDispatcher($dep)
 {
-    $status;
+    $status = "0";
     switch($dep)
     {
         case "1":
@@ -597,53 +414,16 @@ function setDispatcher($dep)
 
     deleteDispatcher();
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("INSERT INTO ".DB_PREFIX."dispatchers (identifier, callsign, status) VALUES (?, ?, ?)");
-    $result = $stmt->execute(array($_SESSION['identifier'], $_SESSION['identifier'], $status));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $cad_data = new \CAD\CadManager();
+    $cad_data->setDispatcher($_SESSION['identifier'], $_SESSION['identifier'], $status);  
 }
 
 function getAOP()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getAOP();  
 
-    $result = $pdo->query("SELECT * from ".DB_PREFIX."aop");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    if(!$result)
     {
         echo "NO AOP SET";
     }
@@ -658,29 +438,10 @@ function getAOP()
 
 function getDispatchers()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT * from ".DB_PREFIX."dispatchers WHERE status = '1'");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getDispatchers();  
+    
+    if(!$result)
     {
         echo "<div class=\"alert alert-danger\"><span>No available units</span></div>";
     }
@@ -700,7 +461,7 @@ function getDispatchers()
         {
             echo '
             <tr>
-                <td>'.$row[0].'</td>
+                <td>'.$row['identifier'].'</td>
             </tr>
             ';
         }
@@ -714,29 +475,10 @@ function getDispatchers()
 
 function getDispatchersMDT()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT * from ".DB_PREFIX."dispatchers WHERE status = '1'");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getDispatchers();  
+    
+    if(!$result)
     {
         $dispatcher = "false";
     }
@@ -750,7 +492,7 @@ function setUnitActive($dep)
 {
     $identifier = $_SESSION['identifier'];
     $uid = $_SESSION['id'];
-    $status;
+    $status = "";
     switch($dep)
     {
         case "1":
@@ -761,53 +503,19 @@ function setUnitActive($dep)
             break;
     }
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $cad_data = new \CAD\CadManager();
+    $cad_data->setUnitActive($identifier, $identifier, $status, $uid);  
 
-    $stmt = $pdo->prepare("REPLACE INTO ".DB_PREFIX."active_users (identifier, callsign, status, status_detail, id) VALUES (?, ?, ?, '6', ?)");
-    $result = $stmt->execute(array($identifier, $identifier, $status, $uid));
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
 }
 
 function getAvailableUnits()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getAvailableUnits();  
 
-    $result = $pdo->query("SELECT * from ".DB_PREFIX."active_users WHERE status = '1'");
+   
 
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    if(!$result)
     {
         echo "<div class=\"alert alert-danger\"><span>No available units</span></div>";
     }
@@ -857,31 +565,12 @@ function getAvailableUnits()
 
 function getUnAvailableUnits()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getUnAvailableUnits();  
+
+    if(!$result)
     {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT * from ".DB_PREFIX."active_users WHERE status = '0'");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
-    {
-        echo "<div class=\"alert alert-info\"><span>No unavailable units</span></div>";
+        echo "<div class=\"alert alert-info\"><span>Units are all avaliable</span></div>";
     }
     else
     {
@@ -930,26 +619,8 @@ function getUnAvailableUnits()
 
 function getIndividualStatus($callsign)
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("SELECT status_detail FROM ".DB_PREFIX."active_users WHERE callsign = ?");
-    $resStatus = $stmt->execute(array(htmlspecialchars($callsign)));
-    $result = $stmt;
-
-    if (!$resStatus)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getIndividualStatus($callsign);  
 
     $statusDetail = "";
     foreach($result as $row)
@@ -957,48 +628,20 @@ function getIndividualStatus($callsign)
         $statusDetail = $row[0];
     }
 
-    $stmt = $pdo->prepare("SELECT status_text FROM ".DB_PREFIX."statuses WHERE status_id = ?");
-    $resStatus = $stmt->execute(array($statusDetail));
-    $result = $stmt;
-
-    if (!$resStatus)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $result = $cad_data->getIndividualStatusText($statusDetail);  
 
     $statusText = "";
     foreach($result as $row)
     {
         $statusText = $row[0];
     }
-
-    $pdo = null;
     echo $statusText;
 }
 
 function getIncidentType()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT code_name FROM ".DB_PREFIX."incident_type");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getIncidentType();  
 
     foreach($result as $row)
     {
@@ -1009,25 +652,9 @@ function getIncidentType()
 
 function getStreet()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getStreet();  
 
-    $result = $pdo->query("SELECT name FROM ".DB_PREFIX."streets");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
 
     foreach($result as $row)
     {
@@ -1037,25 +664,8 @@ function getStreet()
 
 function getActiveUnits()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT callsign FROM ".DB_PREFIX."active_users WHERE status = '1'");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getActiveUnits();  
 
     $encode = array();
     foreach($result as $row)
@@ -1068,25 +678,8 @@ function getActiveUnits()
 
 function getActiveUnitsModal()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT callsign, identifier FROM ".DB_PREFIX."active_users WHERE status = '1'");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getActiveUnits();  
 
     $encode = array();
     foreach($result as $row)
@@ -1099,29 +692,10 @@ function getActiveUnitsModal()
 
 function getActiveCalls()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getActiveCalls();  
 
-    $result = $pdo->query("SELECT * from ".DB_PREFIX."calls");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    if(!$result)
     {
         echo '<div class="alert alert-info"><span>No active calls</span></div>';
     }
@@ -1200,29 +774,10 @@ function getActiveCalls()
 
 function getActivePersonBOLO()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT * from ".DB_PREFIX."bolos_persons");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getActivePersonBOLO();  
+    
+    if(!$result)
     {
         echo '<div class="alert alert-info"><span>No active calls</span></div>';
     }
@@ -1301,34 +856,13 @@ function getActivePersonBOLO()
 
 function getUnitsOnCall($callId)
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("SELECT * FROM ".DB_PREFIX."calls_users WHERE call_id = ?");
-    $resStatus = $stmt->execute(array(htmlspecialchars($callId)));
-    $result = $stmt;
-
-    if (!$resStatus)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getUnitsOnCall($callId);  
 
     $units = "";
-    if($num_rows == 0)
+    if(!$result)
     {
-        $units = '<span style="color: red;">Unassigned</span>';
+        $units = '<span style="color: red;">No Assigned Units!</span>';
     }
     else
     {
@@ -1345,27 +879,8 @@ function getCallDetails()
 {
     $callId = htmlspecialchars($_GET['callId']);
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $stmt = $pdo->prepare("SELECT * FROM ".DB_PREFIX."calls WHERE call_id = ?");
-    $resStatus = $stmt->execute(array($callId));
-    $result = $stmt;
-
-    if (!$resStatus)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getCallDetails($callId);  
 
     $encode = array();
     foreach($result as $row)
@@ -1384,25 +899,8 @@ function getCallDetails()
 
 function getCivilianNamesOption()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT id, name FROM ".DB_PREFIX."ncic_names");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    $cad_data = new \CAD\CadManager();
+    $result = $cad_data->getCivilianNamesOption();  
 
     foreach($result as $row)
     {
@@ -1412,25 +910,9 @@ function getCivilianNamesOption()
 
 function getCitations()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT citation_name FROM ".DB_PREFIX."citations");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
+    
+    $cit_data = new \Citations\CitationManager();
+    $result = $cit_data->getCitations();
 
     foreach($result as $row)
     {
@@ -1447,27 +929,9 @@ function getCitations()
  */
 function getVehicleMakes()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
 
-    $result = $pdo->query("SELECT DISTINCT ".DB_PREFIX."vehicles.Make FROM ".DB_PREFIX."vehicles");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
+    $veh_data = new \Vehicles\vehicleManager();
+    $result = $veh_data->getVehicleMakes();
 
     foreach($result as $row)
     {
@@ -1484,27 +948,8 @@ function getVehicleMakes()
  */
 function getVehicleModels()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT DISTINCT ".DB_PREFIX."vehicles.Model FROM ".DB_PREFIX."vehicles");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
+    $veh_data = new \Vehicles\vehicleManager();
+    $result = $veh_data->getVehicleModels();
 
     foreach($result as $row)
     {
@@ -1521,27 +966,8 @@ function getVehicleModels()
  */
 function getVehicle()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT * FROM ".DB_PREFIX."vehicles");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
+    $veh_data = new \Vehicles\vehicleManager();
+    $result = $veh_data->getVehicles();
 
     foreach($result as $row)
     {
@@ -1595,27 +1021,8 @@ function getGenders()
  */
 function getColors()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT color_group, color_name FROM ".DB_PREFIX."colors");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
+    $veh_data = new \Vehicles\vehicleManager();
+    $result = $veh_data->getVehicleColors();
 
     foreach($result as $row)
     {
@@ -1625,28 +1032,9 @@ function getColors()
 
 function getCivilianNames()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_names.id, ".DB_PREFIX."ncic_names.name FROM ".DB_PREFIX."ncic_names");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
+    $civ_data = new \Civilian\CivilianManager();
+    $result = $civ_data->getCivilianNames();
+    
     foreach($result as $row)
 	{
 		echo "<option value=\"$row[0]\">$row[1]</option>";
@@ -1658,80 +1046,24 @@ function callCheck()
     $uid = $_SESSION['id'];
     $identifier = $_SESSION['identifier'];
 
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
+    $cad_data = new \CAD\CadManager();
+    $civ_data = new \Civilian\CivilianManager();
+    $result = $cad_data->callCheck($uid);
 
-    $stmt = $pdo->prepare("SELECT * FROM ".DB_PREFIX."calls_users WHERE id = ?");
-    $resStatus = $stmt->execute(array($uid));
-    $result = $stmt;
-
-    if (!$resStatus)
-    {
-        $_SESSION['error'] = $stmt->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-	$num_rows = $result->rowCount();
-
-	if($num_rows == 0)
+	if(!$result)
 	{
-        $stmt = $pdo->prepare("REPLACE INTO ".DB_PREFIX."active_users (identifier, callsign, status, status_detail, id) VALUES (?, ?, '0', '6', ?)");
-        $result = $stmt->execute(array($identifier, $identifier, $uid));
-
-        if (!$result)
-        {
-            $_SESSION['error'] = $stmt->errorInfo();
-            header('Location: '.BASE_URL.'/plugins/error/index.php');
-            die();
-        }
+        $civ_data->replaceActiveUsers($identifier, $uid, "6");
     }
 	else
 	{
-        $stmt = $pdo->prepare("REPLACE INTO ".DB_PREFIX."active_users (identifier, callsign, status, status_detail, id) VALUES (?, ?, '0', '3', ?)");
-        $result = $stmt->execute(array($identifier, $identifier, $uid));
-
-        if (!$result)
-        {
-            $_SESSION['error'] = $stmt->errorInfo();
-            header('Location: '.BASE_URL.'/plugins/error/index.php');
-            die();
-        }
+        $civ_data->replaceActiveUsers($identifier, $uid, "3");
 	}
-
-    $pdo = null;
 }
 
 function getWeapons()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT * FROM ".DB_PREFIX."weapons");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
+    $weapon_data = new \Weapons\WeaponManager();
+    $result = $weapon_data->getWeapons();
 
     foreach($result as $row)
     {
@@ -1741,29 +1073,10 @@ function getWeapons()
 
 function rms_warnings()
 {
-    try{
-        $pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-    } catch(PDOException $ex)
-    {
-        $_SESSION['error'] = "Could not connect -> ".$ex->getMessage();
-        $_SESSION['error_blob'] = $ex;
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-
-    $result = $pdo->query("SELECT ".DB_PREFIX."ncic_names.name, ".DB_PREFIX."ncic_warnings.id, ".DB_PREFIX."ncic_warnings.warning_name, ".DB_PREFIX."ncic_warnings.issued_date, ".DB_PREFIX."ncic_warnings.issued_by FROM ".DB_PREFIX."ncic_warnings INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_warnings.name_id=".DB_PREFIX."ncic_names.id WHERE ".DB_PREFIX."ncic_warnings.status = '1'");
-
-    if (!$result)
-    {
-        $_SESSION['error'] = $pdo->errorInfo();
-        header('Location: '.BASE_URL.'/plugins/error/index.php');
-        die();
-    }
-    $pdo = null;
-
-    $num_rows = $result->rowCount();
-
-    if($num_rows == 0)
+    $warning_data = new \Warnings\WarningManager();
+    $result = $warning_data->rms_warnings();
+    
+    if(!$result)
     {
         echo "<div class=\"alert alert-info\"><span>There are currently no warnings in the NCIC Database</span></div>";
     }
@@ -1995,4 +1308,3 @@ function rms_warrants()
         ';
     }
 }
-?>

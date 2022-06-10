@@ -279,7 +279,7 @@ function delete_name()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['nameMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian name</span></div>';
     header("Location: ".BASE_URL."/civilian.php");
 }
@@ -312,7 +312,7 @@ function delete_plate()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian plate</span></div>';
     header("Location: ".BASE_URL."/civilian.php");
 }
@@ -322,7 +322,7 @@ function create_name()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 
     $fullName = htmlspecialchars($_POST['civNameReq']);
     $firstName = explode(" ", $fullName) [0];
@@ -417,7 +417,7 @@ function create_plate()
 	if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 
 	$plate = htmlspecialchars($_POST['veh_plate']);
 
@@ -470,7 +470,7 @@ function create_plate()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully added plate to the database</span></div>';
 
     header("Location:".BASE_URL."/civilian.php#plate_panel");
@@ -532,7 +532,7 @@ function create911Call()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['good911'] = '<div class="alert alert-success"><span>Successfully created 911 call</span></div>';
 
     sleep(1);
@@ -545,7 +545,7 @@ function edit_name()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 
     $fullName = htmlspecialchars($_POST['civNameReq']);
     $firstName = explode(" ", $fullName) [0];
@@ -637,7 +637,7 @@ function edit_plate()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 
     $plate = htmlspecialchars($_POST['veh_plate']);
 
@@ -691,7 +691,7 @@ function edit_plate()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['plateMessage'] = '<div class="alert alert-success"><span>Successfully Updated plate to the database</span></div>';
 
     header("Location:".BASE_URL."/civilian.php#plate_panel");
@@ -787,7 +787,7 @@ function create_warrant()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['warrantMessage'] = '<div class="alert alert-success"><span>Successfully created warrant</span></div>';
 
     header("Location:".BASE_URL."/civilian.php");
@@ -924,7 +924,7 @@ function delete_warrant()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['warrantMessage'] = '<div class="alert alert-success"><span>Successfully removed warrant</span></div>';
     header("Location: ".BASE_URL."/civilian.php");
 }
@@ -934,7 +934,7 @@ function create_weapon()
 	if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 
     $weapon = htmlspecialchars($_POST['weapon_all']);
     $wea_type = explode("&#8212;", $weapon) [0];
@@ -972,7 +972,7 @@ function create_weapon()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['weaponMessage'] = '<div class="alert alert-success"><span>Successfully added a weapon to the database</span></div>';
 
     header("Location:".BASE_URL."/civilian.php#weapon_panel");
@@ -1079,7 +1079,7 @@ function delete_weapon()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['weaponMessage'] = '<div class="alert alert-success"><span>Successfully removed civilian weapon</span></div>';
     header("Location: ".BASE_URL."/civilian.php");
 }
@@ -1089,7 +1089,7 @@ function getNumberOfProfiles()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = $_SESSION['id'];
 
     try{
@@ -1124,7 +1124,7 @@ function getNumberOfVehicles()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = $_SESSION['id'];
 
     try{
@@ -1159,7 +1159,7 @@ function getNumberOfWeapons()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $id = $_SESSION['id'];
 
     try{

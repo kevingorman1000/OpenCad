@@ -69,4 +69,53 @@ class vehicleManager extends \Dbh
             return $results;
         }
     }
+
+    public function getVehicleMakes()
+    {
+        $stmt = $this->connect()->prepare("SELECT DISTINCT ".DB_PREFIX."vehicles.Make FROM ".DB_PREFIX."vehicles");
+        if (!$stmt->execute()) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
+
+    public function getVehicleModels()
+    {
+        $stmt = $this->connect()->prepare("SELECT DISTINCT ".DB_PREFIX."vehicles.Model FROM ".DB_PREFIX."vehicles");
+        if (!$stmt->execute()) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
+
+    public function getVehicleColors()
+    {
+        $stmt = $this->connect()->prepare("SELECT color_group, color_name FROM ".DB_PREFIX."colors");
+        if (!$stmt->execute()) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
 }

@@ -324,4 +324,36 @@ class CivilianManager extends \Dbh
             return $results;
         }
     }
+
+    public function getCivilianNames()
+    {
+        $stmt = $this->connect()->prepare("SELECT ".DB_PREFIX."ncic_names.id, ".DB_PREFIX."ncic_names.name FROM ".DB_PREFIX."ncic_names");
+        if (!$stmt->execute()) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
+
+    public function replaceActiveUsers($identifier, $uid, $id)
+    {
+        $stmt = $this->connect()->prepare("REPLACE INTO ".DB_PREFIX."active_users (identifier, callsign, status, status_detail, id) VALUES (?, ?, '0', ?, ?)");
+        if (!$stmt->execute($identifier, $identifier, $id, $uid)) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
 }

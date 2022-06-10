@@ -35,7 +35,7 @@ function register()
         if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
         $_SESSION['register_error'] = "Passwords do not match";
         sleep(1);
         header("Location:".BASE_URL."/index.php#signup");
@@ -73,7 +73,7 @@ function register()
         if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
         $_SESSION['register_error'] = "Email already exists";
         sleep(1);
         header("Location:".BASE_URL."/index.php#signup");
@@ -110,7 +110,7 @@ function register()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['register_success'] = "Successfully requested access. Please wait for an administrator to approve your request.";
     sleep(1);
     header("Location:".BASE_URL."/index.php#signup");
@@ -126,7 +126,7 @@ function civreg()
         if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
         $_SESSION['register_error'] = "Passwords do not match";
         sleep(1);
         header("Location:".BASE_URL."/index.php#signup");
@@ -164,7 +164,7 @@ function civreg()
         if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
         $_SESSION['register_error'] = "Email already exists";
         sleep(1);
         header("Location:".BASE_URL."/index.php#civreg");
@@ -196,7 +196,7 @@ function civreg()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $_SESSION['register_success'] = "Successfully registered. You may now log-in.";
     sleep(1);
     header("Location:".BASE_URL."/index.php#civreg");

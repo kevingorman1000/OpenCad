@@ -595,7 +595,7 @@ function create_citation()
 	if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 	$userId = htmlspecialchars($_POST['civilian_names']);
 	$citation_name_1 = htmlspecialchars($_POST['citation_name_1']);
 	$citation_fine_1 = htmlspecialchars($_POST['citation_fine_1']);
@@ -685,7 +685,7 @@ function create_warning()
 	if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 	$userId = htmlspecialchars($_POST['civilian_names']);
 	$warning_name_1 = htmlspecialchars($_POST['warning_name_1']);
 	$warning_name_2 = htmlspecialchars($_POST['warning_name_2']);
@@ -1535,7 +1535,7 @@ function create_arrest()
 	if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 	$userId = htmlspecialchars($_POST['civilian_names']);
 	$arrest_reason_1 = htmlspecialchars($_POST['arrest_reason_1']);
 	$arrest_fine_1 = htmlspecialchars($_POST['arrest_fine_1']);

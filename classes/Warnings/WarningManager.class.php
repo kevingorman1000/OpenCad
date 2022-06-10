@@ -66,4 +66,19 @@ class WarningManager extends \Dbh
             return $results;
         }
     }
+
+    public function rms_warnings(){
+        $stmt = $this->connect()->prepare("SELECT ".DB_PREFIX."ncic_names.name, ".DB_PREFIX."ncic_warnings.id, ".DB_PREFIX."ncic_warnings.warning_name, ".DB_PREFIX."ncic_warnings.issued_date, ".DB_PREFIX."ncic_warnings.issued_by FROM ".DB_PREFIX."ncic_warnings INNER JOIN ".DB_PREFIX."ncic_names ON ".DB_PREFIX."ncic_warnings.name_id=".DB_PREFIX."ncic_names.id WHERE ".DB_PREFIX."ncic_warnings.status = '1'");
+        if (!$stmt->execute()) {
+            $_SESSION['error'] = $stmt->errorInfo();
+            header('Location: ' . BASE_URL . '/plugins/error/index.php');
+            die();
+        }
+        if ($stmt->rowCount() <= 0) {
+            return false;
+        } else {
+            $results = $stmt->fetchAll();
+            return $results;
+        }
+    }
 }

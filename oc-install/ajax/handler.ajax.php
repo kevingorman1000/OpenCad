@@ -13,7 +13,7 @@
 	if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 
     require_once('../include/settings.inc.php');
 	require_once('../include/database.class.php'); 

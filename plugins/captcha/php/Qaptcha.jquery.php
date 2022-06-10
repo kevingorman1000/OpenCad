@@ -2,7 +2,7 @@
 if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
 
 $aResponse['error'] = false;
 $_SESSION['iQaptcha'] = false;	

@@ -58,7 +58,7 @@ function updateCallsign()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $identifier = $_SESSION['identifier'];
 
     try{
@@ -91,7 +91,7 @@ function getStatus()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $identifier = $_SESSION['identifier'];
 
     try{
@@ -310,7 +310,7 @@ function create_citation()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $issued_by = $_SESSION['name'];
     $date = date('Y-m-d');
 
@@ -395,7 +395,7 @@ function create_warning()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $issued_by = $_SESSION['name'];
     $date = date('Y-m-d');
 
@@ -488,7 +488,7 @@ function create_arrest()
     if(!isset($_SESSION)) 
     { 
         session_start(); 
-    } ;
+    }
     $issued_by = $_SESSION['name'];
     $date = date('Y-m-d');
 
